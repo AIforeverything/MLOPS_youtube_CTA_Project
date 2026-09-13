@@ -1,1 +1,4 @@
 cookiecutter-data-science
+isodate
+google-api-python-client
+youtube-transcript-api

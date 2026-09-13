@@ -1,6 +1,9 @@
-# MLOPS_youtube_CTA_Project
-Predicting YouTube Subscription Call-to-Action Timing Using Channel, Video, and Transcript Features.
-(when a YouTube creator will ask viewers to subscribe)
+# MLOPS_youtube_Project
+YouTube Video Performance Prediction and Optimization — An End-to-End MLOps Project
+
+Objective:
+
+Build an end-to-end MLOps system that analyzes 10,000 YouTube videos to understand the relationship between video duration, channel characteristics, content category, and audience engagement, predicts video performance, and provides data-driven recommendations for new videos.
 
 # 1. Clone repository
 

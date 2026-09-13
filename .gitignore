@@ -1,6 +1,21 @@
-/data/
-/notebooks/
 /models/
+
+data/raw/*
+data/interim/*
+data/processed/*
+data/external/*
+
+# Keep directory structure in Git
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+!data/external/.gitkeep
+
+# Keep a small sample dataset
+!data/raw/sample_youtube_videos.csv
+!data/processed/sample_ml_dataset.csv
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

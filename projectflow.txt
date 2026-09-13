@@ -5,6 +5,23 @@
 3. Activate the virtual environment
 4. pip install cookiecutter
 5. run in terminal: cookiecutter -c v1 https://github.com/drivendata/cookiecutter-data-science
+    update .gitignore :
+    /models/
+
+    data/raw/*
+    data/interim/*
+    data/processed/*
+    data/external/*
+    
+    # Keep directory structure in Git
+    !data/raw/.gitkeep
+    !data/interim/.gitkeep
+    !data/processed/.gitkeep
+    !data/external/.gitkeep
+    
+    # Keep a small sample dataset
+    !data/raw/sample_youtube_videos.csv
+    !data/processed/sample_ml_dataset.csv
 6. Rename src.models -> src.model
 7. git add - commit - push
 
