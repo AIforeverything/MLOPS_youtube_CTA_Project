@@ -2,3 +2,12 @@ cookiecutter-data-science
 isodate
 google-api-python-client
 youtube-transcript-api
+ipynb
+dotenv
+pytest
+boto3
+awscli
+dvc
+dvc[s3]
+
+-e .
