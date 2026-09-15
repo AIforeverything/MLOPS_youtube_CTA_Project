@@ -222,6 +222,8 @@ def main():
 
     logger.info("S3 data-ingestion process completed successfully.")
     logger.info(f"""{FILE_KEY} is saved to local as "{data_save_local}" for experimentation.""")
+    
+    return dataframe.reset_index(drop=True)
 
 
 if __name__ == "__main__":
