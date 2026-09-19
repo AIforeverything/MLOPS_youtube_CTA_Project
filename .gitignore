@@ -1,5 +1,4 @@
 /models/
-/src/model/model.pkl
 
 data/raw/*
 data/interim/*
