@@ -9,5 +9,10 @@ boto3
 awscli
 dvc
 dvc[s3]
+dagshub
+mlflow
+scikit-learn
+# scikeras
+# tensorflow
 
 -e .
