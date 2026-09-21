@@ -1,9 +1,9 @@
 /models/
 
-data/raw/*
-data/interim/*
-data/processed/*
-data/external/*
+data/raw/*.csv
+data/interim/*.csv
+data/processed/*.csv
+data/external/*.csv
 
 .vscode/
 
