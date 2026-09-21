@@ -7,12 +7,12 @@ from src.utils.remove_null_values import remove_null
 
 logger= configure_logger()
 
-def data_processing():
+def data_processing(file_path:str):
     """This function processes the data.It removes null values from the required columns"""
     try:
         logger.info("Starting data preprocessing and reading the file.")
         
-        file_path= "./data/raw/youtube_10000_videos.csv"
+        
         df= pd.read_csv(file_path)
         
         required_columns= yaml_loader("./params.yaml")["required_columns"]
@@ -37,4 +37,5 @@ def data_processing():
         raise
         
 if __name__=="__main__":
-    data_processing()    
+    file_path= "./data/raw/youtube_10000_videos.csv"
+    data_processing(file_path)    
