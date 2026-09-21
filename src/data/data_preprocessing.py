@@ -21,7 +21,7 @@ def data_processing():
         
         logger.info(f"Null values removed: {len(df)-len(df1)}")
         
-        file_saving_path= "./data/interim/processed.csv"
+        file_saving_path= "./data/interim/interim.csv"
         
         df1.to_csv(file_saving_path)
         logger.info("Data preprocessing is successful")
