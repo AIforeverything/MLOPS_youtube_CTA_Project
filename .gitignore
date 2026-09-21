@@ -1,4 +1,4 @@
-/models/*
+/models/*.pkl
 
 data/raw/*.csv
 data/interim/*.csv
@@ -15,6 +15,7 @@ data/external/*.csv
 
 # git traces .dvc for data versioning.
 !data/**/*.dvc
+!models/*.dvc
 
 # Keep a small sample dataset
 !data/raw/sample_youtube_videos.csv
