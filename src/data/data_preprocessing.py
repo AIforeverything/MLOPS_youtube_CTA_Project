@@ -23,7 +23,7 @@ def data_processing(file_path:str):
         
         file_saving_path= "./data/interim/interim.csv"
         
-        df1.to_csv(file_saving_path)
+        df1.to_csv(file_saving_path,index=None)
         logger.info("Data preprocessing is successful")
        
     except pd.errors.ParserError as error:

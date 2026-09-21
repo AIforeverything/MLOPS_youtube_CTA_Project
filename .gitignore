@@ -1,4 +1,4 @@
-/models/
+/models/*
 
 data/raw/*.csv
 data/interim/*.csv
