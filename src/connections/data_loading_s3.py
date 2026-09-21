@@ -10,7 +10,7 @@ from botocore.exceptions import (
 )
 from dotenv import load_dotenv
 
-from src.utils.logger import configure_logger
+from src.logger.logger import configure_logger
 
 
 # Configure application logger
@@ -127,8 +127,6 @@ class AWSS3Connections:
         try:
             logger.info(
                 f"Fetching file '{file_key}' from bucket '{self.bucket_name}'.",
-                # file_key,
-                # self.bucket_name,
             )
 
             response = self.s3_client.get_object(
@@ -141,8 +139,6 @@ class AWSS3Connections:
 
             logger.info(
                 f"Successfully loaded '{file_key}'. Number of records: {len(df)}.",
-                # file_key,
-                # len(df),
             )
 
             return df
@@ -150,8 +146,6 @@ class AWSS3Connections:
         except self.s3_client.exceptions.NoSuchKey:
             logger.exception(
                 f"The S3 object '{file_key}' does not exist in bucket '{self.bucket_name}'.",
-                # file_key,
-                # self.bucket_name,
             )
             raise
 
@@ -165,30 +159,25 @@ class AWSS3Connections:
             )
 
             logger.exception(
-                f"AWS error while fetching '{file_key}'. Error code: {error_code}.",
-                # file_key,
-                # error_code,
+                f"AWS error while fetching '{file_key}'. Error code: {error_code}."
             )
             raise
 
         except UnicodeDecodeError:
             logger.exception(
-                f"The file '{file_key}' could not be decoded as UTF-8.",
-                # file_key,
+                f"The file '{file_key}' could not be decoded as UTF-8."
             )
             raise
 
         except pd.errors.ParserError:
             logger.exception(
                 f"The file '{file_key}' is not a valid CSV file.",
-                # file_key,
             )
             raise
 
         except Exception:
             logger.exception(
-                f"Unexpected error while fetching '{file_key}' from S3.",
-                # file_key,
+                f"Unexpected error while fetching '{file_key}' from S3."
             )
             raise
 
@@ -228,7 +217,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
+        df= main()
 
     except NoCredentialsError:
         logger.error(

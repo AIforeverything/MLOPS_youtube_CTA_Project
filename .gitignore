@@ -5,11 +5,16 @@ data/interim/*
 data/processed/*
 data/external/*
 
+.vscode/
+
 # Keep directory structure in Git
 !data/raw/.gitkeep
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 !data/external/.gitkeep
+
+# git traces .dvc for data versioning.
+!data/**/*.dvc
 
 # Keep a small sample dataset
 !data/raw/sample_youtube_videos.csv
