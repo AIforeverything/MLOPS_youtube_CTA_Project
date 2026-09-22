@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 
 logger= configure_logger()
 
-def train_test_data_split(file_path: str)->None:
+def train_test_data_split(file_path: str,test_size:float)->None:
     """ Function to split the data into train.csv and test.csv to avoid data leaking."""
 
     try: 
@@ -17,8 +17,8 @@ def train_test_data_split(file_path: str)->None:
         else:
             logger.exception(f"Data loading error. Rows: {len(df)}")
             raise  
-        test_size_from_yaml= yaml_loader("./params.yaml")["data_ingestion"]["test_size"]
-        train_df, test_df = train_test_split(df,test_size=test_size_from_yaml,random_state=42)
+        
+        train_df, test_df = train_test_split(df,test_size=test_size,random_state=42)
 
         if not train_df.empty:
             logger.info(f"Data is loaded successfully. Rows of train_df: {len(train_df)}")
@@ -45,6 +45,11 @@ def train_test_data_split(file_path: str)->None:
         logger.exception(f"Un excepted error has occurred: {e}")  
         raise  
     
-if __name__=="__main__":
+def main():
     file_path= './data/interim/interim.csv'
-    train_test_data_split(file_path)
+    test_size= yaml_loader("./params.yaml")["data_ingestion"]["test_size"]
+    train_test_data_split(file_path,test_size)
+    
+       
+if __name__=="__main__":
+    main()

@@ -14,7 +14,6 @@ def data_ingestion()->pd.DataFrame:
     """ Function to read the data file and returns pandas dataframe"""
     try:
         df= main()
-        # print(df)
         return df
     except NoCredentialsError:
         logger.error(

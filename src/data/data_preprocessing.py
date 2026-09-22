@@ -7,23 +7,19 @@ from src.utils.remove_null_values import remove_null
 
 logger= configure_logger()
 
-def data_processing(file_path:str):
+def data_processing(file_path:str,file_saving_path:str,required_columns:list[str]):
     """This function processes the data.It removes null values from the required columns"""
     try:
         logger.info("Starting data preprocessing and reading the file.")
         
         
         df= pd.read_csv(file_path)
-        
-        required_columns= yaml_loader("./params.yaml")["required_columns"]
         df= df[required_columns]
         df1= remove_null(df)
         
         logger.info(f"Null values removed: {len(df)-len(df1)}")
         
-        file_saving_path= "./data/interim/interim.csv"
-        
-        df1.to_csv(file_saving_path,index=None)
+        df1.to_csv(file_saving_path,index=False)
         logger.info("Data preprocessing is successful")
        
     except pd.errors.ParserError as error:
@@ -35,7 +31,13 @@ def data_processing(file_path:str):
     except Exception as e:
         logger.exception(f"unexpected error: {e}")
         raise
+    
+def main():
+    file_path= "./data/raw/youtube_10000_videos.csv"
+    file_saving_path= "./data/interim/interim.csv"
+    required_columns= yaml_loader("./params.yaml")["required_columns"]
+    data_processing(file_path,file_saving_path,required_columns)   
+    
         
 if __name__=="__main__":
-    file_path= "./data/raw/youtube_10000_videos.csv"
-    data_processing(file_path)    
+    main()
