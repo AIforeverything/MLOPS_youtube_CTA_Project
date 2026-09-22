@@ -4,7 +4,7 @@ setup(
     name='src',
     packages=find_packages(),
     version='1.0.0',
-    description='Predicting YouTube Subscription Call-to-Action Timing.',
+    description='Predicting YouTube View Count',
     author='sudhakar',
     license='MIT',
 )

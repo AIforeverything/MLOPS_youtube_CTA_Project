@@ -5,7 +5,7 @@ numeric_features:
 categorical_features:
     ["category"]
     
-
+model: RandomForestRegressor
 params:
     model__n_estimators:
         [100,200,500,700,1000]
