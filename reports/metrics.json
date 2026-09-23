@@ -1,6 +1,5 @@
 {
-    "model": "RandomForestRegressor",
-    "mean_absolute_error": 0.7797819149555867,
-    "mean_squared_error": 1.2359863645320985,
-    "r2_score": 0.8114103340401325
+   "mean_absolute_error": 0.7797819149555868,
+   "mean_squared_error": 1.2359863645320985,
+   "r2_score": 0.8114103340401325
 }
