@@ -1,4 +1,5 @@
 /models/*.pkl
+/reports/*.json
 
 data/raw/*.csv
 data/interim/*.csv
@@ -12,6 +13,7 @@ data/external/*.csv
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 !data/external/.gitkeep
+!reports/.gitkeep
 
 # git traces .dvc for data versioning.
 !data/**/*.dvc

@@ -36,7 +36,7 @@ os.environ["MLFLOW_TRACKING_USERNAME"] = repo_owner
 os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 
 
-def model_predict(test_data_path: str, model_pipeline_path: str, model_name: str):
+def model_predict(test_data_path: str, model_pipeline_path: str):
     try:
         logger.info("Test Data Loading is started.")
         test_data_df = pd.read_csv(test_data_path)
@@ -73,10 +73,10 @@ def model_predict(test_data_path: str, model_pipeline_path: str, model_name: str
         raise
 
 
-def save_model_info(run_id: str, model_path: str, file_path: str, url: str) -> None:
+def save_model_info(run_id: str, model_name: str, file_path: str, url: str) -> None:
     """Save the model run ID and path to a JSON file."""
     try:
-        model_info = {"run_id": run_id, "model_path": model_path, "url": url}
+        model_info = {"run_id": run_id, "model": model_name, "url": url}
         with open(file_path, "w") as file:
             json.dump(model_info, file, indent=6)
         logger.info("Model info saved to %s", file_path)
@@ -94,7 +94,8 @@ def main():
 
     try:
         # loading the model, calculating and saving the metrics using below function
-        model, metrics = model_predict(test_data_path, model_pipeline_path, model_name)
+        model, metrics = model_predict(
+            test_data_path, model_pipeline_path)
         save_metrics(metrics, save_metrics_path)
 
         # setting mlflow
