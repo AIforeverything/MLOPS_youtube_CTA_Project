@@ -1,4 +1,5 @@
 {
-    "run_id": "415558090f474e6f883e2d6211bb43f9",
-    "model_path": "youtube_model_RandomForestRegressor"
+      "run_id": "12afd4b45e0b4f01bd45403cc061a603",
+      "model_path": "youtube_model_RandomForestRegressor",
+      "url": "https://dagshub.com/AIforeverything/MLOPS_youtube_CTA_Project.mlflow"
 }
