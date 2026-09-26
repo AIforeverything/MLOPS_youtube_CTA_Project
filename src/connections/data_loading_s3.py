@@ -101,8 +101,6 @@ class AWSS3Connections:
             logger.info(
                 f"S3 client initialized successfully for bucket '{self.bucket_name}' "
                 f"in region {self.aws_region}."
-                # self.bucket_name,
-                # self.aws_region,
             )
 
         except Exception:
@@ -206,18 +204,19 @@ def main():
     print(f"Number of records: {len(dataframe)}")
     print("\nFirst five records:")
     print(dataframe.head())
-    data_save_local='data/raw/youtube_10000_videos.csv'
-    dataframe.to_csv(data_save_local,index=False)
+    data_save_local = 'data/raw/youtube_10000_videos.csv'
+    dataframe.to_csv(data_save_local, index=False)
 
     logger.info("S3 data-ingestion process completed successfully.")
-    logger.info(f"""{FILE_KEY} is saved to local as "{data_save_local}" for experimentation.""")
-    
+    logger.info(
+        f"""{FILE_KEY} is saved to local as "{data_save_local}" for experimentation.""")
+
     return dataframe.reset_index(drop=True)
 
 
 if __name__ == "__main__":
     try:
-        df= main()
+        df = main()
 
     except NoCredentialsError:
         logger.error(
