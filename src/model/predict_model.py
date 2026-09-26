@@ -18,22 +18,23 @@ logger = configure_logger()
 load_dotenv()
 dagshub_token = os.getenv("DAGSHUB_TOKEN")
 dagshub_url = "https://dagshub.com"
-repo_owner = os.getenv("repo_owner")
-repo_name = os.getenv("repo_name")
+repo_owner = os.getenv("REPO_OWNER")
+repo_name = os.getenv("REPO_NAME")
+
 if not dagshub_token:
+    logger.exception("dagshub_token  not loaded properly.")
     raise EnvironmentError("dagshub_token  not loaded properly.")
-if not dagshub_url:
-    raise EnvironmentError("dagshub_url  not loaded properly.")
 if not repo_owner:
+    logger.exception("repo_owner  not loaded properly.")
     raise EnvironmentError("repo_owner  not loaded properly.")
 if not repo_name:
+    logger.exception("repo_name  not loaded properly.")
     raise EnvironmentError("repo_name  not loaded properly.")
-
-mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
-logger.info(f"MLflow Tracking URI: {mlflow.get_tracking_uri()}")
 
 os.environ["MLFLOW_TRACKING_USERNAME"] = repo_owner
 os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
+logger.info(f"MLflow Tracking URI: {mlflow.get_tracking_uri()}")
 
 
 def model_predict(test_data_path: str, model_pipeline_path: str):
@@ -73,13 +74,23 @@ def model_predict(test_data_path: str, model_pipeline_path: str):
         raise
 
 
-def save_model_info(run_id: str, model_name: str, file_path: str, url: str) -> None:
-    """Save the model run ID and path to a JSON file."""
+def save_model_info(
+    run_id: str, model_name: str, model_uri: str, file_path: str, tracking_uri: str
+) -> None:
+
     try:
-        model_info = {"run_id": run_id, "model": model_name, "url": url}
+        model_info = {
+            "run_id": run_id,
+            "model": model_name,
+            "model_uri": model_uri,
+            "url": tracking_uri,
+        }
+
         with open(file_path, "w") as file:
-            json.dump(model_info, file, indent=6)
+            json.dump(model_info, file, indent=4)
+
         logger.info("Model info saved to %s", file_path)
+
     except Exception:
         logger.exception("Error occurred while saving the model")
         raise
@@ -94,8 +105,7 @@ def main():
 
     try:
         # loading the model, calculating and saving the metrics using below function
-        model, metrics = model_predict(
-            test_data_path, model_pipeline_path)
+        model, metrics = model_predict(test_data_path, model_pipeline_path)
         save_metrics(metrics, save_metrics_path)
 
         # setting mlflow
@@ -111,17 +121,17 @@ def main():
                 for param_name, param_value in params.items():
                     mlflow.log_param(param_name, param_value)
 
-            # logging model to mlflow
-            mlflow.sklearn.log_model(
+            # logging model to mlflow and saving info
+            model_info = mlflow.sklearn.log_model(
                 model,
                 name=f"youtube_model_{model_name}",
                 skops_trusted_types=["numpy.dtype"],
             )
 
-            # saving model information
             save_model_info(
                 run.info.run_id,
                 f"youtube_model_{model_name}",
+                model_info.model_uri,
                 "reports/experiment_info.json",
                 mlflow.get_tracking_uri(),
             )
