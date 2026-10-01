@@ -1,12 +1,6 @@
 {
-<<<<<<< HEAD
-    "run_id": "69abfcd3c1fe412ca1537b03bbe529ea",
-    "model": "youtube_model_RandomForestRegressor",
-    "model_uri": "models:/m-9ac6f5c9826949e79a883242d2c2e1e1",
-=======
-    "run_id": "bcddd46636294cdd9e7952fc9fb96f77",
+    "run_id": "9b195ac8d2154ae5bcef402760f08edd",
     "model": "RandomForestRegressor",
-    "model_uri": "models:/m-9c44330643c94f9ab60b0c40309ed809",
->>>>>>> 4e72d4c6444581b02beb81947551931de7898a55
+    "model_uri": "models:/m-294d45d1d6da47c5b51d5c596393402b",
     "url": "https://dagshub.com/AIforeverything/MLOPS_youtube_CTA_Project.mlflow"
 }

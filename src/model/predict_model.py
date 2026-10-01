@@ -18,12 +18,10 @@ logger = configure_logger()
 load_dotenv()
 dagshub_token = os.getenv("DAGSHUB_TOKEN")
 dagshub_url = "https://dagshub.com"
-repo_owner = os.getenv("repo_owner")
-repo_name = os.getenv("repo_name")
+repo_owner = os.getenv("REPO_OWNER")
+repo_name = os.getenv("REPO_NAME")
 if not all([dagshub_token, repo_owner, repo_name]):
-    raise EnvironmentError(
-        "DagsHub environment variables are not loaded properly."
-    )
+    raise EnvironmentError("DagsHub environment variables are not loaded properly.")
 
 mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 logger.info(f"MLflow Tracking URI: {mlflow.get_tracking_uri()}")
@@ -70,11 +68,7 @@ def model_predict(test_data_path: str, model_pipeline_path: str):
 
 
 def save_model_info(
-    run_id: str,
-    model_name: str,
-    model_uri: str,
-    file_path: str,
-    url: str
+    run_id: str, model_name: str, model_uri: str, file_path: str, url: str
 ) -> None:
     """Save MLflow model information to a JSON file."""
 
@@ -83,21 +77,16 @@ def save_model_info(
             "run_id": run_id,
             "model": model_name,
             "model_uri": model_uri,
-            "url": url
+            "url": url,
         }
 
         with open(file_path, "w") as file:
             json.dump(model_info, file, indent=4)
 
-        logger.info(
-            "Model info saved to %s",
-            file_path
-        )
+        logger.info("Model info saved to %s", file_path)
 
     except Exception:
-        logger.exception(
-            "Error occurred while saving the model information"
-        )
+        logger.exception("Error occurred while saving the model information")
         raise
 
 
@@ -110,13 +99,12 @@ def main():
 
     try:
         # loading the model, calculating and saving the metrics using below function
-        model, metrics = model_predict(
-            test_data_path, model_pipeline_path)
+        model, metrics = model_predict(test_data_path, model_pipeline_path)
         save_metrics(metrics, save_metrics_path)
 
-       # ---------------------------------------------------------
-# MLflow experiment
-# ---------------------------------------------------------
+        # ---------------------------------------------------------
+        # MLflow experiment
+        # ---------------------------------------------------------
 
         mlflow.set_experiment(experiment_name)
 
@@ -131,10 +119,7 @@ def main():
                 params = model.get_params()
 
                 for param_name, param_value in params.items():
-                    mlflow.log_param(
-                        param_name,
-                        param_value
-                    )
+                    mlflow.log_param(param_name, param_value)
 
             # -----------------------------------------------------
             # Log and register model
@@ -147,13 +132,9 @@ def main():
                 skops_trusted_types=["numpy.dtype"],
             )
 
-            logger.info(
-                f"Model logged successfully: {model_info.model_uri}"
-            )
+            logger.info(f"Model logged successfully: {model_info.model_uri}")
 
-            logger.info(
-                f"Model registered successfully: {model_name}"
-            )
+            logger.info(f"Model registered successfully: {model_name}")
 
             # -----------------------------------------------------
             # Save model information
@@ -171,9 +152,7 @@ def main():
             # Log metrics file
             # -----------------------------------------------------
 
-            mlflow.log_artifact(
-                "reports/metrics.json"
-            )
+            mlflow.log_artifact("reports/metrics.json")
 
     except Exception:
         logger.exception("Error occurred")
