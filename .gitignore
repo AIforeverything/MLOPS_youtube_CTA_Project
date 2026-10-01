@@ -1,15 +1,23 @@
-/models/
+/models/*.pkl
+/reports/*.json
 
-data/raw/*
-data/interim/*
-data/processed/*
-data/external/*
+data/raw/*.csv
+data/interim/*.csv
+data/processed/*.csv
+data/external/*.csv
+
+.vscode/
 
 # Keep directory structure in Git
 !data/raw/.gitkeep
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 !data/external/.gitkeep
+!reports/.gitkeep
+
+# git traces .dvc for data versioning.
+!data/**/*.dvc
+!models/*.dvc
 
 # Keep a small sample dataset
 !data/raw/sample_youtube_videos.csv

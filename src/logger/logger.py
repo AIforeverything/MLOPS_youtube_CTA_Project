@@ -63,59 +63,9 @@ def configure_logger():
     
     logger.propagate=False 
     # propagate = False prevents a logger's messages from being processed by its ancestor loggers. 
-    # Use it when you have configured your own handlers and want to avoid duplicate output.
+    # Use it when we have configured our own handlers and want to avoid duplicate output.
     
     return logger
     
 if __name__=="__main__":
     configure_logger()    
-    
-
-# def configure_logger():
-#     """
-#     Configure application-wide logging.
-
-#     Returns:
-#         logging.Logger: The configured root logger.
-#     """
-#     logger = logging.getLogger()
-
-#     # Prevent duplicate handlers if called multiple times
-#     if logger.handlers:
-#         return logger
-
-#     logger.setLevel(logging.DEBUG)
-
-#     # Determine the project root relative to this file
-#     project_root = Path(__file__).resolve().parents[3]
-#     log_dir = project_root / LOG_DIR
-#     log_dir.mkdir(parents=True, exist_ok=True)
-
-#     # Create a timestamped log file
-#     timestamp = datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
-#     log_file_path = log_dir / f"{timestamp}.log"
-
-#     # Common formatter
-#     formatter = logging.Formatter(
-#         "[ %(asctime)s ] %(name)s - %(levelname)s - %(message)s"
-#     )
-
-#     # Rotating file handler
-#     file_handler = RotatingFileHandler(
-#         log_file_path,
-#         maxBytes=MAX_LOG_SIZE,
-#         backupCount=BACKUP_COUNT,
-#         encoding="utf-8",
-#     )
-#     file_handler.setLevel(logging.INFO)
-#     file_handler.setFormatter(formatter)
-
-#     # Console handler
-#     console_handler = logging.StreamHandler(sys.stdout)
-#     console_handler.setLevel(logging.INFO)
-#     console_handler.setFormatter(formatter)
-
-#     logger.addHandler(file_handler)
-#     logger.addHandler(console_handler)
-
-#     return logger

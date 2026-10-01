@@ -1,0 +1,163 @@
+import pandas as pd
+import numpy as np
+import json
+from src.utils.load_model import load_model
+from src.utils.save_metrics import save_metrics
+from src.utils.yaml_loader import yaml_loader
+from src.logger.logger import configure_logger
+import dagshub
+import mlflow
+import mlflow.sklearn
+import os
+from dotenv import load_dotenv
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+logger = configure_logger()
+
+# setting up dagshub for mlflow
+load_dotenv()
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+dagshub_url = "https://dagshub.com"
+repo_owner = os.getenv("REPO_OWNER")
+repo_name = os.getenv("REPO_NAME")
+if not all([dagshub_token, repo_owner, repo_name]):
+    raise EnvironmentError("DagsHub environment variables are not loaded properly.")
+
+mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
+logger.info(f"MLflow Tracking URI: {mlflow.get_tracking_uri()}")
+
+os.environ["MLFLOW_TRACKING_USERNAME"] = repo_owner
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+
+
+def model_predict(test_data_path: str, model_pipeline_path: str):
+    try:
+        logger.info("Test Data Loading is started.")
+        test_data_df = pd.read_csv(test_data_path)
+        if not test_data_df.empty:
+            logger.info("Test Data is loaded successfully!")
+
+        X_test = test_data_df.drop(columns=["view_count"])
+        y_test = np.log1p(test_data_df["view_count"])
+
+        model = load_model(model_pipeline_path)
+        if model:
+            logger.info("Model pipeline is loaded successfully!")
+
+        y_pred = model.predict(X_test)
+        mae = mean_absolute_error(y_test, y_pred)
+        mse = mean_squared_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+
+        metrics = {
+            "mean_absolute_error": mae,
+            "mean_squared_error": mse,
+            "r2_score": r2,
+        }
+        logger.info("Model evaluation metrics calculated")
+
+        return model, metrics
+
+    except FileNotFoundError as e:
+        logger.exception(f"File doesn't exist error")
+        raise
+
+    except pd.errors.ParserError as e:
+        logger.exception("Data loading error")
+        raise
+
+
+def save_model_info(
+    run_id: str, model_name: str, model_uri: str, file_path: str, url: str
+) -> None:
+    """Save MLflow model information to a JSON file."""
+
+    try:
+        model_info = {
+            "run_id": run_id,
+            "model": model_name,
+            "model_uri": model_uri,
+            "url": url,
+        }
+
+        with open(file_path, "w") as file:
+            json.dump(model_info, file, indent=4)
+
+        logger.info("Model info saved to %s", file_path)
+
+    except Exception:
+        logger.exception("Error occurred while saving the model information")
+        raise
+
+
+def main():
+    test_data_path = "./data/processed/test.csv"
+    model_pipeline_path = "./models/model.pkl"
+    save_metrics_path = "./reports/metrics.json"
+    model_name = yaml_loader("./params.yaml")["model"]
+    experiment_name = yaml_loader("./params.yaml")["experiment_name"]
+
+    try:
+        # loading the model, calculating and saving the metrics using below function
+        model, metrics = model_predict(test_data_path, model_pipeline_path)
+        save_metrics(metrics, save_metrics_path)
+
+        # ---------------------------------------------------------
+        # MLflow experiment
+        # ---------------------------------------------------------
+
+        mlflow.set_experiment(experiment_name)
+
+        with mlflow.start_run() as run:
+
+            # Log metrics
+            mlflow.log_metrics(metrics)
+
+            # Log parameters
+            if hasattr(model, "get_params"):
+
+                params = model.get_params()
+
+                for param_name, param_value in params.items():
+                    mlflow.log_param(param_name, param_value)
+
+            # -----------------------------------------------------
+            # Log and register model
+            # -----------------------------------------------------
+
+            model_info = mlflow.sklearn.log_model(
+                model,
+                name=model_name,
+                registered_model_name=model_name,
+                skops_trusted_types=["numpy.dtype"],
+            )
+
+            logger.info(f"Model logged successfully: {model_info.model_uri}")
+
+            logger.info(f"Model registered successfully: {model_name}")
+
+            # -----------------------------------------------------
+            # Save model information
+            # -----------------------------------------------------
+
+            save_model_info(
+                run.info.run_id,
+                model_name,
+                model_info.model_uri,
+                "reports/experiment_info.json",
+                mlflow.get_tracking_uri(),
+            )
+
+            # -----------------------------------------------------
+            # Log metrics file
+            # -----------------------------------------------------
+
+            mlflow.log_artifact("reports/metrics.json")
+
+    except Exception:
+        logger.exception("Error occurred")
+        raise
+
+
+if __name__ == "__main__":
+    main()
