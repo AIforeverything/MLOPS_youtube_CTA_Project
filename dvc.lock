@@ -1,0 +1,128 @@
+schema: '2.0'
+stages:
+  data_ingestion & preprocessing:
+    cmd: python3 src/data/data_ingestion_preprocessing.py
+    deps:
+    - path: data/raw/youtube_10000_videos.csv
+      hash: md5
+      md5: cf6bdecf15fa7c0d07f26f5bcece4a3d
+      size: 15554584
+    params:
+      params.yaml:
+        required_columns:
+        - category
+        - subscriber_count
+        - channel_view_count
+        - duration_seconds
+        - view_count
+    outs:
+    - path: data/interim/interim.csv
+      hash: md5
+      md5: f43df098bfb52caf69f397aca6ede1c5
+      size: 366944
+  data_validation:
+    cmd: python3 src/data/data_validation.py
+    deps:
+    - path: data/raw/youtube_10000_videos.csv
+      hash: md5
+      md5: cf6bdecf15fa7c0d07f26f5bcece4a3d
+      size: 15554584
+    - path: src/data/data_validation.py
+      hash: md5
+      md5: 260516d2a8438313c00eedd1db544ddf
+      size: 1310
+    params:
+      params.yaml:
+        required_columns:
+        - category
+        - subscriber_count
+        - channel_view_count
+        - duration_seconds
+        - view_count
+  data_ingestion:
+    cmd: python3 src/data/data_ingestion.py
+    deps:
+    - path: data/raw/youtube_10000_videos.csv
+      hash: md5
+      md5: cf6bdecf15fa7c0d07f26f5bcece4a3d
+      size: 15554584
+    - path: src/data/data_ingestion.py
+      hash: md5
+      md5: aec3afc2f40377c9c88611def931ba72
+      size: 903
+  data_preprocessing:
+    cmd: python3 src/data/data_preprocessing.py
+    deps:
+    - path: data/raw/youtube_10000_videos.csv
+      hash: md5
+      md5: cf6bdecf15fa7c0d07f26f5bcece4a3d
+      size: 15554584
+    - path: src/data/data_preprocessing.py
+      hash: md5
+      md5: 41c9de5b53b8e1035d01ca9e819c1929
+      size: 1590
+    params:
+      params.yaml:
+        required_columns:
+        - category
+        - subscriber_count
+        - channel_view_count
+        - duration_seconds
+        - view_count
+    outs:
+    - path: data/interim/interim.csv
+      hash: md5
+      md5: f43df098bfb52caf69f397aca6ede1c5
+      size: 366944
+  feature_engineering:
+    cmd: python3 src/features/build_features.py
+    deps:
+    - path: data/interim/interim.csv
+      hash: md5
+      md5: f43df098bfb52caf69f397aca6ede1c5
+      size: 366944
+    - path: src/features/build_features.py
+      hash: md5
+      md5: 070847840953d33f4194baafd674cceb
+      size: 1942
+    params:
+      params.yaml:
+        data_ingestion.test_size: 0.2
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: d44713bf2c43e7053ab395481abdcf9e
+      size: 73516
+    - path: data/processed/train.csv
+      hash: md5
+      md5: eca86580f65adc351b6c610a92bc4631
+      size: 293501
+  model_training:
+    cmd: python3 src/model/train_model.py
+    deps:
+    - path: data/processed/train.csv
+      hash: md5
+      md5: eca86580f65adc351b6c610a92bc4631
+      size: 293501
+    - path: src/model/train_model.py
+      hash: md5
+      md5: 23357618619da5746fe953bc54fdc632
+      size: 2248
+    params:
+      params.yaml:
+        best_params_RandomForest:
+          n_estimators: 1000
+          random_state=: 42
+          max_depth: 30
+          min_samples_split: 10
+        categorical_features:
+        - category
+        numeric_features:
+        - subscriber_count
+        - channel_view_count
+        - duration_seconds
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: 4bb21ff33214d1bf9672df47efdb9682
+      size: 149743181

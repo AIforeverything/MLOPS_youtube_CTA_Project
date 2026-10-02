@@ -1,2 +1,81 @@
 stages:
+  # data_fetching_from_s3:
+  #   cmd: python3 src/data/data_loading_s3.py
+  #   deps: 
+  #   - src/data/data_loading_s3.py
+  #   outs:
+  #   - data/raw
+  data_ingestion:
+    cmd: python3 src/data/data_ingestion.py
+    deps:
+    - src/data/data_ingestion.py
+    - data/raw/youtube_10000_videos.csv
+
+  data_preprocessing:
+    cmd: python3 src/data/data_preprocessing.py
+    params:
+    - required_columns
+    deps:
+    - src/data/data_preprocessing.py
+    - data/raw/youtube_10000_videos.csv
+    outs:
+    - data/interim/interim.csv
+
+  data_validation:
+    cmd: python3 src/data/data_validation.py
+    params:
+    - required_columns
+    deps:
+    - src/data/data_validation.py
+    - data/raw/youtube_10000_videos.csv
+
+  feature_engineering:
+    cmd: python3 src/features/build_features.py 
+    params:
+      - data_ingestion.test_size 
+    deps:
+      - src/features/build_features.py
+      - data/interim/interim.csv  
+    outs:  
+      - data/processed/train.csv
+      - data/processed/test.csv
+
+  model_training:
+    cmd: python3 src/model/train_model.py
+    params:
+      - numeric_features    
+      - categorical_features
+      - best_params_RandomForest
+    deps:
+      - src/model/train_model.py
+      - data/processed/train.csv
+    outs:
+      - models/model.pkl  
+
+  model_predict:
+    cmd: python3 src/model/predict_model.py   
+    params:
+    - model
+    - experiment_name
+    deps: 
+    - src/model/predict_model.py 
+    - data/processed/test.csv
+    - models/model.pkl
+    outs: 
+    - reports/metrics.json
+
+
+  model_registering:
+      cmd: python3 src/model/register_model.py 
+      deps:
+      - reports/metrics.json
+      - src/model/register_model.py 
+      outs:
+      - reports/experiment_info.json
+
+
+
+
+
   
+

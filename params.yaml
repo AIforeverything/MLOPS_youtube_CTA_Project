@@ -1,7 +1,9 @@
 required_columns:
     ['category','subscriber_count','channel_view_count','duration_seconds', 'view_count']
+
 numeric_features: 
     ['subscriber_count','channel_view_count','duration_seconds']
+    
 categorical_features:
     ["category"]
     
