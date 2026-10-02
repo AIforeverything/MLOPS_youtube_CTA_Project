@@ -8,13 +8,14 @@ from sklearn.model_selection import train_test_split
 logger = configure_logger()
 
 
-def train_test_data_split(file_path: str, test_size: float) -> None:
+def train_test_data_split(
+    file_path: str, sample_dataset_path: str, test_size: float
+) -> None:
     """Function to split the data into train.csv and test.csv to avoid data leaking."""
 
     try:
         df = pd.read_csv(file_path)
-        sample_dataset_path = "/data/processed/sample_ml_dataset.csv"
-        df_sample = df.sample(2)
+        df_sample = df.sample(1)
         df_sample.to_csv(sample_dataset_path, index=False)
         logger.info(f"{sample_dataset_path} is created.")
         if not df.empty:
@@ -57,8 +58,9 @@ def train_test_data_split(file_path: str, test_size: float) -> None:
 
 def main():
     file_path = "./data/interim/interim.csv"
+    sample_dataset_path = "./data/processed/sample_ml_dataset.csv"
     test_size = yaml_loader("./params.yaml")["data_ingestion"]["test_size"]
-    train_test_data_split(file_path, test_size)
+    train_test_data_split(file_path, sample_dataset_path, test_size)
 
 
 if __name__ == "__main__":

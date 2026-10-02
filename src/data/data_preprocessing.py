@@ -10,7 +10,10 @@ logger = configure_logger()
 
 
 def data_preprocessing(
-    file_path: str, file_saving_path: str, required_columns: list[str]
+    file_path: str,
+    file_saving_path: str,
+    sample_file_path: str,
+    required_columns: list[str],
 ):
     """This function processes the data.It removes null values from the required columns"""
     try:
@@ -20,6 +23,9 @@ def data_preprocessing(
             raise FileNotFoundError
 
         df = data_ingestion(file_path)
+        df_sample = df.sample(1)
+        df_sample.to_csv(sample_file_path, index=False)
+        logger.info(f"sample file is created in {sample_file_path}")
         df = df[required_columns]
         df1 = remove_null(df)
 
@@ -41,9 +47,10 @@ def data_preprocessing(
 
 def main():
     file_path = "./data/raw/youtube_10000_videos.csv"
+    sample_raw_path = "./data/raw/sample_youtube_videos.csv"
     file_saving_path = "./data/interim/interim.csv"
     required_columns = yaml_loader("./params.yaml")["required_columns"]
-    data_preprocessing(file_path, file_saving_path, required_columns)
+    data_preprocessing(file_path, file_saving_path, sample_raw_path, required_columns)
 
 
 if __name__ == "__main__":

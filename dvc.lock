@@ -48,8 +48,8 @@ stages:
       size: 15554584
     - path: src/data/data_ingestion.py
       hash: md5
-      md5: aec3afc2f40377c9c88611def931ba72
-      size: 903
+      md5: 7e9f1a0875efe8471db69d0325dc5b3b
+      size: 904
   data_preprocessing:
     cmd: python3 src/data/data_preprocessing.py
     deps:
@@ -59,8 +59,8 @@ stages:
       size: 15554584
     - path: src/data/data_preprocessing.py
       hash: md5
-      md5: 41c9de5b53b8e1035d01ca9e819c1929
-      size: 1590
+      md5: d67832cbf8c5115b6a72e9e5f6af1fda
+      size: 1862
     params:
       params.yaml:
         required_columns:
@@ -74,6 +74,10 @@ stages:
       hash: md5
       md5: f43df098bfb52caf69f397aca6ede1c5
       size: 366944
+    - path: data/raw/sample_youtube_videos.csv
+      hash: md5
+      md5: b87588d2cfc28653f16974227a8154f8
+      size: 646
   feature_engineering:
     cmd: python3 src/features/build_features.py
     deps:
@@ -83,12 +87,16 @@ stages:
       size: 366944
     - path: src/features/build_features.py
       hash: md5
-      md5: 070847840953d33f4194baafd674cceb
-      size: 1942
+      md5: 0d55cbaff0894a2f4c595182024ec7fb
+      size: 2230
     params:
       params.yaml:
         data_ingestion.test_size: 0.2
     outs:
+    - path: data/processed/sample_ml_dataset.csv
+      hash: md5
+      md5: 5d31fad1a32eb3398f05e9be943d4bee
+      size: 110
     - path: data/processed/test.csv
       hash: md5
       md5: d44713bf2c43e7053ab395481abdcf9e

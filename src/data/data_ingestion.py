@@ -11,10 +11,6 @@ def data_ingestion(file_path: str) -> pd.DataFrame:
         file = Path(file_path)
         if file.exists():
             df = pd.read_csv(file)
-            df_sample = df.sample(2)
-            sample_raw_path = "/data/raw/sample_youtube_videos.csv"
-            df_sample.to_csv(sample_raw_path, index=False)
-            logger.info(f"sample file is created in {sample_raw_path}")
         else:
             logger.exception("File wa not found.")
             raise FileNotFoundError
@@ -27,7 +23,7 @@ def data_ingestion(file_path: str) -> pd.DataFrame:
         )
         raise
     except Exception as e:
-        logger.exception("Error occurred: {e}")
+        logger.exception(f"Error occurred: {e}")
         raise e
 
 
