@@ -10,6 +10,8 @@ stages:
     deps:
     - src/data/data_ingestion.py
     - data/raw/youtube_10000_videos.csv
+    outs:
+    - data/raw/sample_youtube_videos.csv
 
   data_preprocessing:
     cmd: python3 src/data/data_preprocessing.py
@@ -39,6 +41,7 @@ stages:
     outs:  
       - data/processed/train.csv
       - data/processed/test.csv
+      - data/processed/sample_ml_dataset.csv
 
   model_training:
     cmd: python3 src/model/train_model.py
@@ -65,13 +68,13 @@ stages:
     - reports/metrics.json
 
 
-  model_registering:
-      cmd: python3 src/model/register_model.py 
-      deps:
-      - reports/metrics.json
-      - src/model/register_model.py 
-      outs:
-      - reports/experiment_info.json
+  # model_registering:
+  #     cmd: python3 src/model/register_model.py 
+  #     deps:
+  #     - reports/metrics.json
+  #     - src/model/register_model.py 
+  #     outs:
+  #     - reports/experiment_info.json
 
 
 

@@ -126,3 +126,43 @@ stages:
       hash: md5
       md5: 4bb21ff33214d1bf9672df47efdb9682
       size: 149743181
+  model_predict:
+    cmd: python3 src/model/predict_model.py
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: d44713bf2c43e7053ab395481abdcf9e
+      size: 73516
+    - path: models/model.pkl
+      hash: md5
+      md5: 4bb21ff33214d1bf9672df47efdb9682
+      size: 149743181
+    - path: src/model/predict_model.py
+      hash: md5
+      md5: 43bacaa46c23e29d3851666386b0fa0a
+      size: 5125
+    params:
+      params.yaml:
+        experiment_name: MLOPS_youtube_Project
+        model: RandomForestRegressor
+    outs:
+    - path: reports/metrics.json
+      hash: md5
+      md5: 23cff93014146c34447ac30b4b7ee312
+      size: 128
+  model_registering:
+    cmd: python3 src/model/register_model.py
+    deps:
+    - path: reports/metrics.json
+      hash: md5
+      md5: 23cff93014146c34447ac30b4b7ee312
+      size: 128
+    - path: src/model/register_model.py
+      hash: md5
+      md5: 51b3a2ce6f1785b97fa20c57b31ddcdd
+      size: 3121
+    outs:
+    - path: reports/experiment_info.json
+      hash: md5
+      md5: fedd227b4538733555e08d653eed3964
+      size: 236
