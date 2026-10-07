@@ -1,0 +1,175 @@
+schema: '2.0'
+stages:
+  data_ingestion & preprocessing:
+    cmd: python3 src/data/data_ingestion_preprocessing.py
+    deps:
+    - path: data/raw/youtube_10000_videos.csv
+      hash: md5
+      md5: cf6bdecf15fa7c0d07f26f5bcece4a3d
+      size: 15554584
+    params:
+      params.yaml:
+        required_columns:
+        - category
+        - subscriber_count
+        - channel_view_count
+        - duration_seconds
+        - view_count
+    outs:
+    - path: data/interim/interim.csv
+      hash: md5
+      md5: f43df098bfb52caf69f397aca6ede1c5
+      size: 366944
+  data_validation:
+    cmd: python src/data/data_validation.py
+    deps:
+    - path: data/raw/youtube_10000_videos.csv
+      hash: md5
+      md5: cf6bdecf15fa7c0d07f26f5bcece4a3d
+      size: 15554584
+    - path: src/data/data_validation.py
+      hash: md5
+      md5: 4481feac85b4051683bdcc2da39b41bc
+      size: 1353
+    params:
+      params.yaml:
+        required_columns:
+        - category
+        - subscriber_count
+        - channel_view_count
+        - duration_seconds
+        - view_count
+  data_ingestion:
+    cmd: python src/data/data_ingestion.py
+    deps:
+    - path: data/raw/youtube_10000_videos.csv
+      hash: md5
+      md5: cf6bdecf15fa7c0d07f26f5bcece4a3d
+      size: 15554584
+    - path: src/data/data_ingestion.py
+      hash: md5
+      md5: 5b2b43d4bdd10cba5e962153a951e280
+      size: 936
+  data_preprocessing:
+    cmd: python src/data/data_preprocessing.py
+    deps:
+    - path: data/raw/youtube_10000_videos.csv
+      hash: md5
+      md5: cf6bdecf15fa7c0d07f26f5bcece4a3d
+      size: 15554584
+    - path: src/data/data_preprocessing.py
+      hash: md5
+      md5: 824e09931ae1f551d0a467693dff82e8
+      size: 1919
+    params:
+      params.yaml:
+        required_columns:
+        - category
+        - subscriber_count
+        - channel_view_count
+        - duration_seconds
+        - view_count
+    outs:
+    - path: data/interim/interim.csv
+      hash: md5
+      md5: 26afa5b45e2a69bdfc50620e0c6e04e1
+      size: 376894
+    - path: data/raw/sample_youtube_videos.csv
+      hash: md5
+      md5: c3ee6e20d25a49613bf58bcf120fa118
+      size: 972
+  feature_engineering:
+    cmd: python src/features/build_features.py
+    deps:
+    - path: data/interim/interim.csv
+      hash: md5
+      md5: 26afa5b45e2a69bdfc50620e0c6e04e1
+      size: 376894
+    - path: src/features/build_features.py
+      hash: md5
+      md5: f4a1e4aedae664dfd2fe1a9d7b6b2dd8
+      size: 2297
+    params:
+      params.yaml:
+        data_ingestion.test_size: 0.2
+    outs:
+    - path: data/processed/sample_ml_dataset.csv
+      hash: md5
+      md5: cfaa7c41b15fb9488b37f6881be791ce
+      size: 111
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 4c288b8347cb1ec77fff89c21e361623
+      size: 75507
+    - path: data/processed/train.csv
+      hash: md5
+      md5: c8859ad01f063e7dc531f4f99d3a507e
+      size: 301461
+  model_training:
+    cmd: python src/model/train_model.py
+    deps:
+    - path: data/processed/train.csv
+      hash: md5
+      md5: c8859ad01f063e7dc531f4f99d3a507e
+      size: 301461
+    - path: src/model/train_model.py
+      hash: md5
+      md5: 921a006a1b87da61058a3a0d1b8c34d2
+      size: 2319
+    params:
+      params.yaml:
+        best_params_RandomForest:
+          n_estimators: 1000
+          random_state=: 42
+          max_depth: 30
+          min_samples_split: 10
+        categorical_features:
+        - category
+        numeric_features:
+        - subscriber_count
+        - channel_view_count
+        - duration_seconds
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: 7c9cb46ed41267f29eeaf7101c6e1fea
+      size: 149746357
+  model_predict:
+    cmd: python src/model/predict_model.py
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 4c288b8347cb1ec77fff89c21e361623
+      size: 75507
+    - path: models/model.pkl
+      hash: md5
+      md5: 7c9cb46ed41267f29eeaf7101c6e1fea
+      size: 149746357
+    - path: src/model/predict_model.py
+      hash: md5
+      md5: 391bec5ef959cc2cb0d16d8b138d6575
+      size: 5645
+    params:
+      params.yaml:
+        experiment_name: MLOPS_youtube_Project
+        model: RandomForestRegressor
+    outs:
+    - path: reports/experiment_info.json
+      hash: md5
+      md5: 02cac654f3eb53b7d7e81ff8645a11e3
+      size: 241
+    - path: reports/metrics.json
+      hash: md5
+      md5: cb66bb2125df2923dd8bfee605695c8c
+      size: 132
+  model_registering:
+    cmd: python src/model/register_model.py
+    deps:
+    - path: reports/metrics.json
+      hash: md5
+      md5: cb66bb2125df2923dd8bfee605695c8c
+      size: 132
+    - path: src/model/register_model.py
+      hash: md5
+      md5: 66935283e741a4cd40c2cd546de82a06
+      size: 3717

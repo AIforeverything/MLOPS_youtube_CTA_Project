@@ -1,45 +1,32 @@
 import pandas as pd
-import numpy as np
 from src.logger.logger import configure_logger
-from src.connections.data_loading_s3 import main
-from botocore.exceptions import (
-    ClientError,
-    NoCredentialsError,
-    PartialCredentialsError
-)
+from pathlib import Path
 
-logger= configure_logger()
+logger = configure_logger()
 
-def data_ingestion()->pd.DataFrame:
-    """ Function to read the data file and returns pandas dataframe"""
+
+def data_ingestion(file_path: str) -> pd.DataFrame:
+    """Function to read the data file and returns pandas dataframe"""
     try:
-        df= main()
+        file = Path(file_path)
+        if file.exists():
+            df = pd.read_csv(file)
+        else:
+            logger.exception("File wa not found.")
+            raise FileNotFoundError
+        if not df.empty:
+            logger.info(f"File {file} is loaded.")
         return df
-    except NoCredentialsError:
-        logger.error(
-            "AWS credentials were not found. "
-            "Check your .env file or AWS credential configuration."
+    except pd.errors.ParserError:
+        logger.exception(
+            f"error occurred while loading file from the path: {file_path}"
         )
         raise
+    except Exception as e:
+        logger.exception(f"Error occurred: {e}")
+        raise e
 
-    except PartialCredentialsError:
-        logger.error(
-            "Incomplete AWS credentials were provided. "
-            "Check AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
-        )
-        raise
 
-    except ClientError as error:
-        logger.error(
-            f"AWS ClientError occurred: {error}",
-        )
-        raise
-
-    except Exception:
-        logger.exception("S3 data-ingestion process failed.")
-        raise
-    
-if __name__=="__main__":
-    data_ingestion()
-            
-    
+if __name__ == "__main__":
+    file_path = "data/raw/youtube_10000_videos.csv"
+    data_ingestion(file_path)
