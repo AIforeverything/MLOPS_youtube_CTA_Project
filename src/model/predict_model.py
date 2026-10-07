@@ -8,6 +8,7 @@ from src.logger.logger import configure_logger
 import dagshub
 import mlflow
 import mlflow.sklearn
+from mlflow.models import infer_signature
 import os
 from dotenv import load_dotenv
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
@@ -21,7 +22,8 @@ dagshub_url = "https://dagshub.com"
 repo_owner = os.getenv("REPO_OWNER")
 repo_name = os.getenv("REPO_NAME")
 if not all([dagshub_token, repo_owner, repo_name]):
-    raise EnvironmentError("DagsHub environment variables are not loaded properly.")
+    raise EnvironmentError(
+        "DagsHub environment variables are not loaded properly.")
 
 mlflow.set_tracking_uri(f"{dagshub_url}/{repo_owner}/{repo_name}.mlflow")
 logger.info(f"MLflow Tracking URI: {mlflow.get_tracking_uri()}")
@@ -97,6 +99,10 @@ def main():
     model_name = yaml_loader("./params.yaml")["model"]
     experiment_name = yaml_loader("./params.yaml")["experiment_name"]
 
+    test_data_df = pd.read_csv(test_data_path)
+    X_test_sample = test_data_df.drop(columns=["view_count"]).sample(1)
+    y_test_sample = np.log1p(test_data_df["view_count"]).sample(1)
+
     try:
         # loading the model, calculating and saving the metrics using below function
         model, metrics = model_predict(test_data_path, model_pipeline_path)
@@ -130,6 +136,8 @@ def main():
                 name=model_name,
                 registered_model_name=model_name,
                 skops_trusted_types=["numpy.dtype"],
+                signature=infer_signature(
+                    test_data_path, model.predict(X_test_sample))
             )
 
             logger.info(f"Model logged successfully: {model_info.model_uri}")
@@ -144,7 +152,7 @@ def main():
                 run.info.run_id,
                 model_name,
                 model_info.model_uri,
-                "reports/experiment_info.json",
+                "./reports/experiment_info.json",
                 mlflow.get_tracking_uri(),
             )
 

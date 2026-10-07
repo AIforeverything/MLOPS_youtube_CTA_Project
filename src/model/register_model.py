@@ -26,7 +26,8 @@ repo_owner = os.getenv("REPO_OWNER")
 repo_name = os.getenv("REPO_NAME")
 
 if not all([dagshub_token, repo_owner, repo_name]):
-    raise EnvironmentError("DagsHub environment variables are not loaded properly.")
+    raise EnvironmentError(
+        "DagsHub environment variables are not loaded properly.")
 
 
 # =========================================================
@@ -83,12 +84,28 @@ def register_model(model_name: str, model_info: dict) -> None:
         # Register model
         # -------------------------------------------------
 
-        model_version = mlflow.register_model(model_uri=model_uri, name=model_name)
+        model_version = mlflow.register_model(
+            model_uri=model_uri, name=model_name)
 
         logger.info(
             f"Model registered successfully: "
             f"{model_name}, "
             f"Version: {model_version.version}"
+        )
+
+        # -------------------------------------------------
+        # Assign STAGING alias
+        # -------------------------------------------------
+
+        client.set_registered_model_alias(
+            name=model_name,
+            alias="staging",
+            version=model_version.version
+        )
+
+        logger.info(
+            f"Model version {model_version.version} "
+            f"assigned to alias 'staging'"
         )
 
     except Exception:
