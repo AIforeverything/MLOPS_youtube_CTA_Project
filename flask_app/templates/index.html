@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube View Count Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main class="container">
+        <section class="card">
+            <div class="header">
+                <span class="badge">ML Prediction</span>
+                <h1>YouTube View Count Predictor</h1>
+                <p>Enter video/channel information to predict the expected <strong>view_count</strong>.</p>
+            </div>
+
+            <form id="predictionForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="" selected disabled>Select category</option>
+                <option value="Gaming">Gaming</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subscriber_count">Subscriber Count</label>
+                        <input
+                            type="number"
+                            id="subscriber_count"
+                            name="subscriber_count"
+                            min="0"
+                            step="1"
+                            placeholder="e.g. 3020000"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="channel_view_count">Channel View Count</label>
+                        <input
+                            type="number"
+                            id="channel_view_count"
+                            name="channel_view_count"
+                            min="0"
+                            step="1"
+                            placeholder="e.g. 950328592"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration_seconds">Duration (seconds)</label>
+                        <input
+                            type="number"
+                            id="duration_seconds"
+                            name="duration_seconds"
+                            min="0"
+                            step="0.1"
+                            placeholder="e.g. 39"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <button type="submit" id="predictButton">
+                    <span id="buttonText">Predict View Count</span>
+                    <span id="spinner" class="spinner hidden"></span>
+                </button>
+            </form>
+
+            <div id="errorMessage" class="message error hidden"></div>
+
+            <section id="resultCard" class="result hidden">
+                <p class="result-label">Predicted View Count</p>
+                <div id="predictionValue">—</div>
+                <p class="result-note">Model prediction for the supplied inputs</p>
+            </section>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

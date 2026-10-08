@@ -1,5 +1,8 @@
 cookiecutter-data-science
 isodate
+numpy==2.3.5
+pandas==2.3.3
+psutil==7.0.0
 google-api-python-client
 youtube-transcript-api
 ipynb
@@ -10,9 +13,13 @@ awscli
 dvc
 dvc[s3]
 dagshub
-mlflow
-scikit-learn
+mlflow==3.14.0
+scikit-learn==1.9.0
+scipy==1.15.3
+skops==0.14.0
 # scikeras
 # tensorflow
-
--e .
+# pipreqs
+flask
+prometheus_client
+# -e .
