@@ -1,4 +1,3 @@
-```javascript
 const form = document.getElementById("predictionForm");
 
 const button = document.getElementById("predictButton");
@@ -10,18 +9,21 @@ const predictionValue = document.getElementById("predictionValue");
 const errorMessage = document.getElementById("errorMessage");
 
 
+// Display error message
 function showError(message) {
     errorMessage.textContent = message;
     errorMessage.classList.remove("hidden");
 }
 
 
+// Clear error message
 function clearError() {
     errorMessage.textContent = "";
     errorMessage.classList.add("hidden");
 }
 
 
+// Handle loading state
 function setLoading(loading) {
     button.disabled = loading;
 
@@ -33,6 +35,7 @@ function setLoading(loading) {
 }
 
 
+// Format prediction using Indian number formatting
 function formatNumber(value) {
     const number = Number(value);
 
@@ -46,15 +49,16 @@ function formatNumber(value) {
 }
 
 
+// Handle prediction form submission
 form.addEventListener("submit", async function (event) {
 
-    // Prevent normal HTML form submission
+    // Prevent page reload
     event.preventDefault();
 
     clearError();
     resultCard.classList.add("hidden");
 
-    // Collect input values
+    // Collect input features
     const payload = {
         category: document.getElementById("category").value,
 
@@ -80,13 +84,24 @@ form.addEventListener("submit", async function (event) {
 
 
     // Validate numerical inputs
-    if (
-        !Number.isFinite(payload.subscriber_count) ||
-        !Number.isFinite(payload.channel_view_count) ||
-        !Number.isFinite(payload.duration_seconds)
-    ) {
-        showError("Please enter valid numeric values.");
-        return;
+    const numericFields = [
+        "subscriber_count",
+        "channel_view_count",
+        "duration_seconds"
+    ];
+
+    for (const field of numericFields) {
+        if (
+            !Number.isFinite(payload[field]) ||
+            payload[field] < 0
+        ) {
+            showError(
+                `Please enter a valid non-negative value for ${
+                    field.replaceAll("_", " ")
+                }.`
+            );
+            return;
+        }
     }
 
 
@@ -95,9 +110,8 @@ form.addEventListener("submit", async function (event) {
 
     try {
 
-        // Send data to Flask
+        // Send JSON to Flask
         const response = await fetch("/predict", {
-
             method: "POST",
 
             headers: {
@@ -108,45 +122,34 @@ form.addEventListener("submit", async function (event) {
         });
 
 
+        // Flask returns JSON
+        const result = await response.json();
+
+
+        // Handle Flask errors
         if (!response.ok) {
-
-            const message = await response.text();
-
             throw new Error(
-                message || `Prediction failed (${response.status}).`
+                result.error ||
+                `Prediction failed (HTTP ${response.status}).`
             );
         }
 
 
-        /*
-         * Your current Flask /predict route returns
-         * index.html rather than JSON.
-         *
-         * Therefore we receive the returned HTML
-         * and extract #predictionValue from it.
-         */
-        const html = await response.text();
-
-
-        const parsedHTML =
-            new DOMParser().parseFromString(html, "text/html");
-
-
-        const returnedPrediction =
-            parsedHTML.querySelector("#predictionValue");
-
-
-        if (!returnedPrediction) {
+        // Validate prediction
+        if (
+            typeof result.prediction !== "number" ||
+            !Number.isFinite(result.prediction)
+        ) {
             throw new Error(
-                "Prediction was returned, but the result could not be read."
+                "The server did not return a valid prediction."
             );
         }
 
 
-        // Display prediction
-        predictionValue.textContent =
-            formatNumber(returnedPrediction.textContent.trim());
-
+        // Display predicted view count
+        predictionValue.textContent = formatNumber(
+            result.prediction
+        );
 
         resultCard.classList.remove("hidden");
 
@@ -156,7 +159,8 @@ form.addEventListener("submit", async function (event) {
         console.error("Prediction error:", error);
 
         showError(
-            error.message || "Unable to get prediction."
+            error.message ||
+            "Unable to get prediction. Please check the Flask server."
         );
 
     } finally {
@@ -165,4 +169,3 @@ form.addEventListener("submit", async function (event) {
     }
 
 });
-```

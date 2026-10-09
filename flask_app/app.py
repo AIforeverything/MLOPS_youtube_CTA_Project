@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from prometheus_client import Counter, Histogram, generate_latest, CollectorRegistry, CONTENT_TYPE_LATEST
 import mlflow
 import dagshub
@@ -78,18 +78,45 @@ def home():
 
 @app.route("/predict", methods=["POST"])
 def predict():
+
     REQUEST_COUNT.labels(method="POST", endpoint="/predict").inc()
     start_time = time.time()
+    payload = request.get_json(silent=True)
+    print(payload)
+    if not isinstance(payload, dict):
+        return jsonify({"error": "Expected a JSON object containing prediction features"}), 400
+    required_features = [
+        "category",
+        "subscriber_count",
+        "channel_view_count",
+        "duration_seconds",
+    ]
+    missing = [name for name in required_features if name not in payload]
+    if missing:
+        return jsonify({"error": f"Missing required feature(s):{','.joi(missing)}"}), 400
+    # sending a single row for prediction
+    try:
+        input_df = pd.DataFrame([{
+            "category": payload["category"],
+            "subscriber_count": payload["subscriber_count"],
+            "channel_view_count": payload["channel_view_count"],
+            "duration_seconds": payload["duration_seconds"]
+        }])
+        print(input_df)
+        print(model)
+        prediction = model.predict(input_df)[0]
+        print(prediction)
 
-    data = request.get_json()
-    data_df = pd.read_json(data)
+        # measuring latency
+        REQUEST_LATENCY.labels(
+            endpoint="/prediction").observe(time.time()-start_time)
 
-    prediction = model.predict(data_df)[0]
-
-    # measuring latency
-    REQUEST_LATENCY.labels(endpoint="/predict").observe(time.time()-start_time)
-
-    return render_template("index.html", result=prediction)
+        return jsonify({"prediction": prediction})
+    except (TypeError, ValueError) as exceptions:
+        return jsonify({"error": f"Invalid inputs {exceptions}"}), 400
+    except Exception:
+        app.logger.exception("Prediction is failed")
+        return jsonify({"error": "Prediction failed. Check flask server logs."}), 500
 
 
 @app.route("/metrics", methods=['GET'])
@@ -99,4 +126,4 @@ def metrics():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

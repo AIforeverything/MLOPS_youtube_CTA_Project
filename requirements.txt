@@ -22,4 +22,4 @@ skops==0.14.0
 # pipreqs
 flask
 prometheus_client
-# -e .
+-e .
