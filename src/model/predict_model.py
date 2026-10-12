@@ -136,8 +136,8 @@ def main():
                 name=model_name,
                 registered_model_name=model_name,
                 skops_trusted_types=["numpy.dtype"],
-                signature=infer_signature(
-                    test_data_path, model.predict(X_test_sample))
+                # signature=infer_signature(
+                #     test_data_path, model.predict(X_test_sample))
             )
 
             logger.info(f"Model logged successfully: {model_info.model_uri}")
