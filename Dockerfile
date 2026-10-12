@@ -22,4 +22,4 @@ CMD ["gunicorn","--bind","0.0.0.0:5000","--timeout","120","app:app"]
 # docker build -t youtube_view_count_prediction:v1.0.0 .
 
 # to run the image:
-# docker run --rm   --name youtube-predictor   --env-file .env   -p 5000:5000   youtube_view_count_prediction:v1.0.0
+# docker run --rm   --name youtube-predictor   --env-file .env   -p 5000:5000 youtube_view_count_prediction:v1.0.0
