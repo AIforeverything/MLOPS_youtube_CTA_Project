@@ -1,10 +1,10 @@
 stages:
-  # data_fetching_from_s3:
-  #   cmd: python3 src/data/data_loading_s3.py
-  #   deps: 
-  #   - src/data/data_loading_s3.py
-  #   outs:
-  #   - data/raw
+  data_fetching_from_s3:
+    cmd: python3 src/data/data_loading_s3.py
+    deps: 
+    - src/data/data_loading_s3.py
+    outs:
+    - data/raw
   data_ingestion:
     cmd: python src/data/data_ingestion.py
     deps:
