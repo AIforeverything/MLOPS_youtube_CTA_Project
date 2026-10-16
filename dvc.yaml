@@ -1,8 +1,8 @@
 stages:
   data_fetching_from_s3:
-    cmd: python3 src/data/data_loading_s3.py
+    cmd: python3 src/connections/data_loading_s3.py
     deps: 
-    - src/data/data_loading_s3.py
+    - src/connections/data_loading_s3.py
     # outs:
     # - data/raw/youtube_10000_videos.csv
 
