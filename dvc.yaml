@@ -5,6 +5,7 @@ stages:
     - src/data/data_loading_s3.py
     outs:
     - data/raw
+    
   data_ingestion:
     cmd: python src/data/data_ingestion.py
     deps:
