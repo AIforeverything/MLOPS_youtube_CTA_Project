@@ -41,7 +41,8 @@ required_env_vars = {
 missing_vars = [key for key, value in required_env_vars.items() if not value]
 
 if missing_vars:
-    raise EnvironmentError(f"Missing environment variables: {', '.join(missing_vars)}")
+    raise EnvironmentError(
+        f"Missing environment variables: {', '.join(missing_vars)}")
 
 os.environ["MLFLOW_TRACKING_USERNAME"] = repo_owner
 os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
@@ -96,7 +97,8 @@ def get_latest_model_version(model_name):
         )
 
     if not versions:
-        raise RuntimeError(f"No eligible model version found for '{model_name}'.")
+        raise RuntimeError(
+            f"No eligible model version found for '{model_name}'.")
 
     return versions[0].version
 
