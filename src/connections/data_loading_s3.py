@@ -18,7 +18,6 @@ logger = configure_logger()
 
 # Load environment variables from .env
 load_dotenv()
-
 # Read environment variables
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_KEY")
