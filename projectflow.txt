@@ -83,7 +83,7 @@
     - docker push youruser/capstone-app:latest (optional)
     - optional: try to delete image locally and pull it from dockerhub and run (optional)
 
-37. Setup aws services for below secrets and variables:
+37. Setup aws services for below secrets and variables in github secret-> repository secrets:
 	AWS_ACCESS_KEY_ID
 	AWS_SECRET_ACCESS_KEY
 	AWS_REGION

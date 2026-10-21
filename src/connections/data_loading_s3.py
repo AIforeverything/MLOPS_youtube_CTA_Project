@@ -12,7 +12,6 @@ from dotenv import load_dotenv
 
 from src.logger.logger import configure_logger
 
-
 # Configure application logger
 logger = configure_logger()
 
@@ -25,7 +24,7 @@ AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_KEY")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 FILE_KEY = os.getenv("FILE_KEY")
-AWS_REGION_NAME = os.getenv("AWS_REGION_NAME", "us-east-1")
+AWS_REGION_NAME = os.getenv("AWS_REGION_NAME", "ap-south-1")
 
 
 def validate_environment_variables():
@@ -48,9 +47,8 @@ def validate_environment_variables():
     ]
 
     if missing_variables:
-        error_message = (
-            "The following environment variables are missing: "
-            + ", ".join(missing_variables)
+        error_message = "The following environment variables are missing: " + ", ".join(
+            missing_variables
         )
 
         logger.error(error_message)
@@ -162,9 +160,7 @@ class AWSS3Connections:
             raise
 
         except UnicodeDecodeError:
-            logger.exception(
-                f"The file '{file_key}' could not be decoded as UTF-8."
-            )
+            logger.exception(f"The file '{file_key}' could not be decoded as UTF-8.")
             raise
 
         except pd.errors.ParserError:
@@ -174,9 +170,7 @@ class AWSS3Connections:
             raise
 
         except Exception:
-            logger.exception(
-                f"Unexpected error while fetching '{file_key}' from S3."
-            )
+            logger.exception(f"Unexpected error while fetching '{file_key}' from S3.")
             raise
 
 
@@ -204,12 +198,13 @@ def main():
     print(f"Number of records: {len(dataframe)}")
     print("\nFirst five records:")
     print(dataframe.head())
-    data_save_local = 'data/raw/youtube_10000_videos.csv'
+    data_save_local = "data/raw/youtube_10000_videos.csv"
     dataframe.to_csv(data_save_local, index=False)
 
     logger.info("S3 data-ingestion process completed successfully.")
     logger.info(
-        f"""{FILE_KEY} is saved to local as "{data_save_local}" for experimentation.""")
+        f"""{FILE_KEY} is saved to local as "{data_save_local}" for experimentation."""
+    )
 
     return dataframe.reset_index(drop=True)
 
