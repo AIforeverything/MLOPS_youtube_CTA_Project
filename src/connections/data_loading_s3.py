@@ -32,8 +32,8 @@ def validate_environment_variables():
     """
 
     required_variables = {
-        "AWS_ACCESS_KEY": AWS_ACCESS_KEY,
-        "AWS_SECRET_KEY": AWS_SECRET_KEY,
+        "AWS_ACCESS_KEY_ID": AWS_ACCESS_KEY,
+        "AWS_SECRET_ACCESS_KEY": AWS_SECRET_KEY,
         "S3_BUCKET_NAME": S3_BUCKET_NAME,
         "FILE_KEY": FILE_KEY,
         "AWS_REGION_NAME": AWS_REGION_NAME,
@@ -159,8 +159,7 @@ class AWSS3Connections:
             raise
 
         except UnicodeDecodeError:
-            logger.exception(
-                f"The file '{file_key}' could not be decoded as UTF-8.")
+            logger.exception(f"The file '{file_key}' could not be decoded as UTF-8.")
             raise
 
         except pd.errors.ParserError:
@@ -170,8 +169,7 @@ class AWSS3Connections:
             raise
 
         except Exception:
-            logger.exception(
-                f"Unexpected error while fetching '{file_key}' from S3.")
+            logger.exception(f"Unexpected error while fetching '{file_key}' from S3.")
             raise
 
 

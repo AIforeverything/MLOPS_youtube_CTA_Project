@@ -19,9 +19,9 @@ stages:
     deps:
     - src/data/data_preprocessing.py
     - data/raw/youtube_10000_videos.csv
-    # outs:
-    # - data/interim/interim.csv
-    # - data/raw/sample_youtube_videos.csv
+    outs:
+    - data/interim/interim.csv
+    - data/raw/sample_youtube_videos.csv
 
   data_validation:
     cmd: python src/data/data_validation.py
@@ -39,10 +39,10 @@ stages:
       - src/features/build_features.py
       - data/interim/interim.csv  
       
-    # outs:  
-    #   - data/processed/train.csv
-    #   - data/processed/test.csv
-    #   - data/processed/sample_ml_dataset.csv
+    outs:  
+      - data/processed/train.csv
+      - data/processed/test.csv
+      - data/processed/sample_ml_dataset.csv
 
   model_training:
     cmd: python src/model/train_model.py
@@ -53,8 +53,8 @@ stages:
     deps:
       - src/model/train_model.py
       - data/processed/train.csv
-    # outs:
-    #   - models/model.pkl  
+    outs:
+      - models/model.pkl  
 
   model_predict:
     cmd: python src/model/predict_model.py   
@@ -65,9 +65,9 @@ stages:
     - src/model/predict_model.py 
     - data/processed/test.csv
     - models/model.pkl
-    # outs: 
-    # - reports/metrics.json
-    # - reports/experiment_info.json
+    outs: 
+    - reports/metrics.json
+    - reports/experiment_info.json
 
 
   model_registering:
