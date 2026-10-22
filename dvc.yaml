@@ -3,8 +3,8 @@ stages:
     cmd: python3 src/connections/data_loading_s3.py
     deps: 
     - src/connections/data_loading_s3.py
-    # outs:
-    # - data/raw/youtube_10000_videos.csv
+    outs:
+    - data/raw/youtube_10000_videos.csv
 
   data_ingestion:
     cmd: python src/data/data_ingestion.py
