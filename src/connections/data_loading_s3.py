@@ -19,8 +19,8 @@ logger = configure_logger()
 # Load environment variables from .env
 load_dotenv()
 # Read environment variables
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_KEY")
+AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
+AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
 FILE_KEY = os.getenv("FILE_KEY")
 AWS_REGION_NAME = os.getenv("AWS_REGION_NAME", "ap-south-1")
@@ -32,8 +32,8 @@ def validate_environment_variables():
     """
 
     required_variables = {
-        "AWS_ACCESS_KEY_ID": AWS_ACCESS_KEY_ID,
-        "AWS_SECRET_ACCESS_KEY": AWS_SECRET_ACCESS_KEY,
+        "AWS_ACCESS_KEY": AWS_ACCESS_KEY,
+        "AWS_SECRET_KEY": AWS_SECRET_KEY,
         "S3_BUCKET_NAME": S3_BUCKET_NAME,
         "FILE_KEY": FILE_KEY,
         "AWS_REGION_NAME": AWS_REGION_NAME,
@@ -159,7 +159,8 @@ class AWSS3Connections:
             raise
 
         except UnicodeDecodeError:
-            logger.exception(f"The file '{file_key}' could not be decoded as UTF-8.")
+            logger.exception(
+                f"The file '{file_key}' could not be decoded as UTF-8.")
             raise
 
         except pd.errors.ParserError:
@@ -169,7 +170,8 @@ class AWSS3Connections:
             raise
 
         except Exception:
-            logger.exception(f"Unexpected error while fetching '{file_key}' from S3.")
+            logger.exception(
+                f"Unexpected error while fetching '{file_key}' from S3.")
             raise
 
 
@@ -184,8 +186,8 @@ def main():
 
     data_ingestion = AWSS3Connections(
         bucket_name=S3_BUCKET_NAME,
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        aws_access_key_id=AWS_ACCESS_KEY,
+        aws_secret_access_key=AWS_SECRET_KEY,
         aws_region=AWS_REGION_NAME,
     )
 
