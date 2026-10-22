@@ -1,4 +1,5 @@
 /models/*.pkl
+!/models/
 /reports/*.json
 
 /myenv/
