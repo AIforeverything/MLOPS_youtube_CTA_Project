@@ -21,10 +21,6 @@
 
 import pickle
 from typing import Any
-from pathlib import Path
-import os
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def save_model(model_save_path: str, model_pipeline: Any) -> None:
@@ -38,7 +34,6 @@ def save_model(model_save_path: str, model_pipeline: Any) -> None:
     None
     """
     try:
-        os.makedirs(f"model_save_path", exist_ok=True)
         with open(model_save_path, "wb") as model_dump:
             pickle.dump(model_pipeline, model_dump)
     except Exception as e:
