@@ -1,6 +1,8 @@
-# Ignore generated model files
+# Ignore all files inside models
 /models/*
-# Keep the directory in Git
+
+# Allow the models directory and its .gitkeep file
+!/models/
 !/models/.gitkeep
 
 /reports/*.json
