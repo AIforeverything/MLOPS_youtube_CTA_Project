@@ -1,5 +1,8 @@
-/models/*.pkl
-!/models/ .gitkeep
+# Ignore generated model files
+/models/*
+# Keep the directory in Git
+!/models/.gitkeep
+
 /reports/*.json
 
 /myenv/
