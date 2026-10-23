@@ -104,7 +104,10 @@ from src.utils.combined_pipeline import (
 from src.utils.save_model import save_model
 from src.utils.yaml_loader import yaml_loader
 
+from pathlib import Path
+
 logger = configure_logger()
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def train_model(file_path: str, model_pipeline: Pipeline, save_model_path: str) -> None:
@@ -158,9 +161,11 @@ def main():
 
     model_pipeline = model_with_combined_processor(combined_processor_pipeline, model)
 
-    save_model_path = "./models/model.pkl"
+    save_model_path = PROJECT_ROOT / "models" / "model.pkl"
 
-    train_model(file_path, model_pipeline, save_model_path)
+    # save_model_path = "./models/model.pkl"
+
+    train_model(file_path, model_pipeline, str(save_model_path))
     return train_model
 
 
