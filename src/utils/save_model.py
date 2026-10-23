@@ -24,8 +24,8 @@ def save_model(model_save_path: str, model_pipeline: Any) -> None:
 
 def save_model(model_save_path: str, model_pipeline: Any) -> None:
     try:
-        # model_path= Path(model_save_path)
-        # model_path.parent.mkdir(parents=True,exist_ok=True)
+        model_path= Path(model_save_path)
+        model_path.parent.mkdir(parents=True,exist_ok=True)
         with open(model_pipeline, 'wb') as model:
             pickle.dump(model, model_save_path)
     except Exception as e:

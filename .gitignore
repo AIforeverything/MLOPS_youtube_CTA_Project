@@ -2,7 +2,6 @@
 /models/*
 
 # Allow the models directory and its .gitkeep file
-# !/models/
 !/models/.gitkeep
 
 /reports/*.json
