@@ -161,9 +161,9 @@ def main():
 
     model_pipeline = model_with_combined_processor(combined_processor_pipeline, model)
 
-    save_model_path = PROJECT_ROOT / "models" / "model.pkl"
+    # save_model_path = PROJECT_ROOT / "models" / "model.pkl"
 
-    # save_model_path = "./models/model.pkl"
+    save_model_path = "./models/model.pkl"
 
     train_model(file_path, model_pipeline, str(save_model_path))
     return train_model
