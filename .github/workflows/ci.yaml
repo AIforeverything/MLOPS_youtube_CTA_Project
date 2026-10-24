@@ -107,7 +107,7 @@ jobs:
         run: python -m pip check
 
       - name: Reproduce DVC pipeline
-        run: dvc repro
+        run: dvc repro --force
 
       - name: Run tests
         run: python -m pytest -v
