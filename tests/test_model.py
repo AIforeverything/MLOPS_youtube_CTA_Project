@@ -54,8 +54,7 @@ class TestModelLoading(unittest.TestCase):
         mlflow.set_tracking_uri(tracking_uri)
 
         cls.new_model_name = model_name
-        cls.new_model_version = cls.get_latest_model_version(
-            cls.new_model_name)
+        cls.new_model_version = cls.get_latest_model_version(cls.new_model_name)
         if cls.new_model_version is None:
             raise RuntimeError(
                 f"No model versions found for registered model '{cls.new_model_name}' in DagsHub. "
@@ -68,45 +67,21 @@ class TestModelLoading(unittest.TestCase):
 
         test_path = PROJECT_ROOT / "data" / "processed" / "test.csv"
         if not test_path.exists():
-            raise FileNotFoundError(
-                f"Holdout test dataset not found: {test_path}")
+            raise FileNotFoundError(f"Holdout test dataset not found: {test_path}")
         cls.holdout_data = pd.read_csv(test_path).dropna()
         if cls.holdout_data.empty:
             raise ValueError(f"Holdout test dataset is empty: {test_path}")
-
-    # @staticmethod
-    # def get_latest_model_version(model_name):
-    #     """Prefer Staging, then Production, then an un-staged/latest version."""
-    #     client = mlflow.MlflowClient()
-    #     for stage in ("Staging", "Production", "None"):
-    #         versions = client.get_latest_versions(model_name, stages=[stage])
-    #         if versions:
-    #             version = max(versions, key=lambda item: int(item.version)).version
-    #             logger.info("Selected model version %s from stage %s", version, stage)
-    #             return version
-
-    #     # Last-resort fallback for registry versions whose stage is not returned
-    #     # by the stage queries above.
-    #     versions = client.search_model_versions(f"name='{model_name}'")
-    #     if versions:
-    #         return max(versions, key=lambda item: int(item.version)).version
-    #     return None
 
     @staticmethod
     def get_latest_model_version(model_name):
         client = mlflow.MlflowClient()
 
-        versions = client.search_model_versions(
-            f"name = '{model_name}'"
-        )
+        versions = client.search_model_versions(f"name = '{model_name}'")
 
         if not versions:
             return None
 
-        latest_version = max(
-            versions,
-            key=lambda version: int(version.version)
-        )
+        latest_version = max(versions, key=lambda version: int(version.version))
 
         logger.info(
             "Latest registered version for %s: %s",
@@ -148,8 +123,7 @@ class TestModelLoading(unittest.TestCase):
         )
         X = df.drop(columns=["view_count"])
 
-        prediction = self._predict_with_compatibility_diagnostic(
-            X, "sample dataset")
+        prediction = self._predict_with_compatibility_diagnostic(X, "sample dataset")
         self.assertEqual(
             prediction.shape[0],
             X.shape[0],
@@ -172,8 +146,7 @@ class TestModelLoading(unittest.TestCase):
 
     def test_model_performance(self):
         if "view_count" not in self.holdout_data.columns:
-            self.fail(
-                "Holdout dataset must contain the target column 'view_count'.")
+            self.fail("Holdout dataset must contain the target column 'view_count'.")
 
         X_holdout = self.holdout_data.drop(columns=["view_count"])
         y_holdout = self.holdout_data["view_count"]
@@ -195,27 +168,23 @@ class TestModelLoading(unittest.TestCase):
         mae = mean_absolute_error(y_holdout, y_pred)
         mse = mean_squared_error(y_holdout, y_pred)
         r2 = r2_score(y_holdout, y_pred)
-        logger.info(
-            "Holdout metrics: MAE=%.4f, MSE=%.4f, R2=%.4f", mae, mse, r2)
+        logger.info("Holdout metrics: MAE=%.4f, MSE=%.4f, R2=%.4f", mae, mse, r2)
 
         # Optional project-specific quality gates. MAE and MSE are errors, so
         # they must be <= their maximum thresholds; R2 must be >= its minimum.
         max_mae = os.getenv("MAX_MAE")
         max_mse = os.getenv("MAX_MSE")
-        min_r2 = os.getenv("MIN_R2", "0.8")
+        min_r2 = os.getenv("MIN_R2", "0.82")
         self.assertTrue(
-            np.isfinite([mae, mse, r2]).all(
-            ), "Evaluation metrics must be finite."
+            np.isfinite([mae, mse, r2]).all(), "Evaluation metrics must be finite."
         )
         if max_mae is not None:
             self.assertLessEqual(
-                mae, float(
-                    max_mae), f"MAE {mae:.4f} exceeds MAX_MAE={max_mae}."
+                mae, float(max_mae), f"MAE {mae:.4f} exceeds MAX_MAE={max_mae}."
             )
         if max_mse is not None:
             self.assertLessEqual(
-                mse, float(
-                    max_mse), f"MSE {mse:.4f} exceeds MAX_MSE={max_mse}."
+                mse, float(max_mse), f"MSE {mse:.4f} exceeds MAX_MSE={max_mse}."
             )
         self.assertGreaterEqual(
             r2, float(min_r2), f"R2 {r2:.4f} is below MIN_R2={min_r2}."
