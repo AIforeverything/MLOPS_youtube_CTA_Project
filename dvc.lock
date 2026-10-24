@@ -114,8 +114,8 @@ stages:
       size: 293501
     - path: src/model/train_model.py
       hash: md5
-      md5: 23357618619da5746fe953bc54fdc632
-      size: 2248
+      md5: 5aeea00560d9cd7617f10090236901e7
+      size: 4629
     params:
       params.yaml:
         best_params_RandomForest:
@@ -147,8 +147,8 @@ stages:
       size: 149746388
     - path: src/model/predict_model.py
       hash: md5
-      md5: 68155dd10aaabcaad65b7c47d85d91cb
-      size: 5478
+      md5: a2ceb05c909fa21c518042a9ca7fd47a
+      size: 10646
     params:
       params.yaml:
         experiment_name: MLOPS_youtube_Project
@@ -165,11 +165,22 @@ stages:
   model_registering:
     cmd: python src/model/register_model.py
     deps:
+    - path: reports/experiment_info.json
+      hash: md5
+      md5: a768565a7ccaf4da6c47783395929947
+      size: 236
     - path: reports/metrics.json
       hash: md5
       md5: 1cdcc3b1a885d496440c9812583bea4e
       size: 127
     - path: src/model/register_model.py
       hash: md5
-      md5: c873bcd3c64ce861acb9630abda3382f
-      size: 3578
+      md5: 294139f082f0a676dcdfe8925d7956d1
+      size: 5930
+  data_fetching_from_s3:
+    cmd: python3 src/connections/data_loading_s3.py
+    deps:
+    - path: src/connections/data_loading_s3.py
+      hash: md5
+      md5: e22e240acab6fdc134c45a7c6f07829a
+      size: 6194
