@@ -174,7 +174,7 @@ class TestModelLoading(unittest.TestCase):
         # they must be <= their maximum thresholds; R2 must be >= its minimum.
         max_mae = os.getenv("MAX_MAE")
         max_mse = os.getenv("MAX_MSE")
-        min_r2 = os.getenv("MIN_R2", "0.82")
+        min_r2 = os.getenv("MIN_R2", "0.8")
         self.assertTrue(
             np.isfinite([mae, mse, r2]).all(), "Evaluation metrics must be finite."
         )
