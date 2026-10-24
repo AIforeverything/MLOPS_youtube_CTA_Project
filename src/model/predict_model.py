@@ -289,12 +289,15 @@ def main() -> None:
 
         # Important: do not pass registered_model_name here; register_model.py
         # registers this run's model once and assigns the candidate alias.
+        input_example = X_test.head(1).copy()
         model_info = mlflow.sklearn.log_model(
             sk_model=model,
             name="model",
             signature=signature,
-            input_example=X_test.head(min(3, len(X_test))),
+            input_example=input_example,
+            skops_trusted_types=["numpy.dtype"],
         )
+
         mlflow.log_artifact(str(metrics_path), artifact_path="evaluation")
         save_model_info(
             run_id=run.info.run_id,
