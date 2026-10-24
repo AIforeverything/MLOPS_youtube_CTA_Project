@@ -290,6 +290,13 @@ def main() -> None:
         # Important: do not pass registered_model_name here; register_model.py
         # registers this run's model once and assigns the candidate alias.
         input_example = X_test.head(1).copy()
+
+        # Generate a sample prediction
+        sample_prediction = model.predict(input_example)
+
+        # Create model signature
+        signature = infer_signature(input_example, sample_prediction)
+
         model_info = mlflow.sklearn.log_model(
             sk_model=model,
             name="model",
