@@ -140,6 +140,8 @@ Invoke-WebRequest -Uri "https://github.com/weaveworks/eksctl/releases/download/v
 * Verify eksctl: eksctl version
 ----------------------------------------------------------------------------------
 
+
+
 39. Create an EKS cluster:
     configure aws using command: aws configure
     Enter details:
@@ -157,10 +159,10 @@ Invoke-WebRequest -Uri "https://github.com/weaveworks/eksctl/releases/download/v
   --name youtube-view-predict-app-cluster \
   --region us-east-1 \
   --nodegroup-name youtube-view-predict-app-nodes \
-  --node-type t3.micro \
-  --nodes 1 \
+  --node-type t3.small \
+  --nodes 2 \
   --nodes-min 1 \
-  --nodes-max 1 \
+  --nodes-max 2 \
   --managed
 
 
@@ -257,7 +259,10 @@ sudo apt update && sudo apt upgrade -y
 61. Download Grafana: wget https://dl.grafana.com/oss/release/grafana_10.1.5_amd64.deb
 (this is a stable version for now; adjust the link if necessary.)
 
-62. Install Grafana: sudo apt install ./grafana_10.1.5_amd64.deb -y
+62. 
+install grafana and its dependencies
+sudo apt install -y adduser libfontconfig1 musl
+Install Grafana: sudo apt install ./grafana_10.1.5_amd64.deb -y
 
 63. Start the Grafana service: sudo systemctl start grafana-server
 
