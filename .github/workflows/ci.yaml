@@ -155,7 +155,6 @@ jobs:
     #   ECR_IMAGE_URI: ${{ secrets.ECR_IMAGE_URI }}
 
     #   EKS_CLUSTER_NAME: youtube-view-predict-app-cluster
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
