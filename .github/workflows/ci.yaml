@@ -129,17 +129,32 @@ jobs:
       REPO_OWNER: ${{ vars.REPO_OWNER }}
       REPO_NAME: ${{ vars.REPO_NAME }}
       MODEL_NAME: ${{ vars.MODEL_NAME }}
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
       FILE_KEY: ${{ vars.FILE_KEY }}
-
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
       ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
       ECR_IMAGE_URI: ${{ secrets.ECR_IMAGE_URI }}
-
       EKS_CLUSTER_NAME: youtube-view-predict-app-cluster
+      
+    # env:
+    #   DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+    #   REPO_OWNER: ${{ vars.REPO_OWNER }}
+    #   REPO_NAME: ${{ vars.REPO_NAME }}
+    #   MODEL_NAME: ${{ vars.MODEL_NAME }}
+    #   S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
+    #   FILE_KEY: ${{ vars.FILE_KEY }}
+
+    #   AWS_REGION: ${{ secrets.AWS_REGION }}
+    #   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+    #   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+    #   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+    #   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+    #   ECR_IMAGE_URI: ${{ secrets.ECR_IMAGE_URI }}
+
+    #   EKS_CLUSTER_NAME: youtube-view-predict-app-cluster
 
     steps:
       - name: Checkout code
