@@ -74,7 +74,7 @@ metadata:
     app: youtube-view-predict-app
 
 spec:
-  replicas: 2
+  replicas: 1
 
   selector:
     matchLabels:
@@ -160,5 +160,5 @@ spec:
   ports:
     - name: http
       protocol: TCP
-      port: 80
+      port: 5000
       targetPort: 5000

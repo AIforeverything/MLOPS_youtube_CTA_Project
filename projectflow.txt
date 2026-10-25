@@ -160,7 +160,7 @@ Invoke-WebRequest -Uri "https://github.com/weaveworks/eksctl/releases/download/v
   --node-type t3.micro \
   --nodes 1 \
   --nodes-min 1 \
-  --nodes-max 2 \
+  --nodes-max 1 \
   --managed
 
 40. Update kubectl Config
