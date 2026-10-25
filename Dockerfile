@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -15,7 +15,7 @@ EXPOSE 5000
 # local deploy
 # CMD ["python","app.py"]
 # production
-CMD ["gunicorn","--bind","0.0.0.0:5000","--timeout","120","app:app"]
+CMD ["gunicorn","--bind","0.0.0.0:5000","--timeout","300","app:app"]
 
 # to build the image
 # docker build -t youtube_view_count_prediction:v1.0.0 .

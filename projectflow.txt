@@ -159,7 +159,7 @@ Invoke-WebRequest -Uri "https://github.com/weaveworks/eksctl/releases/download/v
   --name youtube-view-predict-app-cluster \
   --region us-east-1 \
   --nodegroup-name youtube-view-predict-app-nodes \
-  --node-type t3.small \
+  --node-type c7i-flex.large \
   --nodes 2 \
   --nodes-min 1 \
   --nodes-max 2 \
@@ -196,8 +196,8 @@ kubectl get svc
 47. Once the LoadBalancer service is up, get the external IP:
 kubectl get svc flask-app-service
 
-48. Try externa-ip:5000 directly on url or on terminal : curl http://external-ip:5000
-curl http://a6bf6255d5f61470c9782b8955c98271-1409247973.us-east-1.elb.amazonaws.com:5000
+48. Try externa-ip:5000 directly on curl or on terminal : curl http://external-ip:5000
+curl http://afa60f93d3ebc4810b6acb13700a26e2-480983264.us-east-1.elb.amazonaws.com:5000
 
 
 49. Delete cluster(optional):
