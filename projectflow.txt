@@ -114,7 +114,27 @@ If the path points to your Anaconda environment (e.g., C:\Users\Personal\anacond
 * Test if kubectl is properly installed: kubectl version --client
 
 
-* Download eksctl: Invoke-WebRequest -Uri "https://github.com/weaveworks/eksctl/releases/download/v0.158.0/eksctl_Windows_amd64.zip" -OutFile "eksctl.zip"
+* Download eksctl: 
+
+For linux:
+https://github.com/eksctl-io/eksctl
+(
+# for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+ARCH=$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/')
+PLATFORM=$(uname -s)_$ARCH
+
+curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+
+# (Optional) Verify checksum
+curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
+
+tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+
+sudo install -m 0755 /tmp/eksctl /usr/local/bin && rm /tmp/eksctl
+)
+
+For windows:
+Invoke-WebRequest -Uri "https://github.com/weaveworks/eksctl/releases/download/v0.158.0/eksctl_Windows_amd64.zip" -OutFile "eksctl.zip"
 * Extract eksctl: Expand-Archive -Path .\eksctl.zip -DestinationPath .
 * Move the extracted eksctl.exe file to C:\Windows\System32 or any folder in your system PATH: Move-Item -Path .\eksctl.exe -Destination "C:\Windows\System32\eksctl.exe"
 ----------------------------------------------------------------------------------
@@ -124,22 +144,22 @@ If the path points to your Anaconda environment (e.g., C:\Users\Personal\anacond
 ----------------------------------------------------------------------------------
 
 39. Create an EKS cluster:
-    eksctl create cluster --name flask-app-cluster --region us-east-1 --nodegroup-name flask-app-nodes --node-type t3.small --nodes 1 --nodes-min 1 --nodes-max 1 --managed
+    eksctl create cluster --name youtube_view_predict_app_cluster --region us-east-1 --nodegroup-name youtube_view_predict_app_nodes --node-type t3.small --nodes 1 --nodes-min 1 --nodes-max 1 --managed
 
 40. Update kubectl Config(Once the cluster is created, eksctl will automatically update your kubectl config file. However, you can verify and set it manually using:)
-aws eks --region us-east-1 update-kubeconfig --name flask-app-cluster (This ensures your kubectl is pointing to the correct cluster.)
+aws eks --region us-east-1 update-kubeconfig --name youtube_view_predict_app_cluster  (This ensures your kubectl is pointing to the correct cluster.)
 
 41. Check EKS Cluster Configuration Ensure you can access your EKS cluster by running
     aws eks list-clusters
 
 42. Delete cluster(optional):
-    eksctl delete cluster --name flask-app-cluster --region us-east-1
+    eksctl delete cluster --name youtube_view_predict_app_cluster --region us-east-1
 
     Also, verify cluster deletion:
     eksctl get cluster --region us-east-1
 
 43. Verify the cluster status:
-    aws eks --region us-east-1 describe-cluster --name flask-app-cluster --query "cluster.status"
+    aws eks --region us-east-1 describe-cluster --name youtube_view_predict_app_cluster --query "cluster.status"
 
 
 44. Check cluster connectivity:
