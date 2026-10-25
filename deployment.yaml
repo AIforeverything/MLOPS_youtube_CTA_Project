@@ -1,0 +1,164 @@
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: youtube-view-predict-app
+#   labels:
+#     app: youtube-view-predict-app
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       app: youtube-view-predict-app
+#   template:
+#     metadata:
+#       labels:
+#         app: youtube-view-predict-app
+#     spec:
+#       containers:
+#         - name: youtube-view-predict-app
+#           image: ${ECR_IMAGE_URI}
+#           imagePullPolicy: Always
+#           ports:
+#             - containerPort: 5000
+#           resources:
+#             requests:
+#               memory: "256Mi"
+#               cpu: "250m"
+#             limits:
+#               memory: "512Mi"
+#               cpu: "1"
+#           env:
+#             - name: DAGSHUB_TOKEN
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: youtube-predictor-secret
+#                   key: DAGSHUB_TOKEN
+
+#             - name: REPO_OWNER
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: youtube-predictor-secret
+#                   key: REPO_OWNER
+
+#             - name: REPO_NAME
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: youtube-predictor-secret
+#                   key: REPO_NAME
+
+#             - name: MODEL_NAME
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: youtube-predictor-secret
+#                   key: MODEL_NAME
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: youtube-view-predict-service
+# spec:
+#   type: LoadBalancer
+#   selector:
+#     app: youtube-view-predict-app
+#   ports:
+#     - name: http
+#       protocol: TCP
+#       port: 80
+#       targetPort: 5000
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: youtube-view-predict-app
+  labels:
+    app: youtube-view-predict-app
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: youtube-view-predict-app
+
+  template:
+    metadata:
+      labels:
+        app: youtube-view-predict-app
+
+    spec:
+      containers:
+        - name: youtube-view-predict-app
+          image: ${ECR_IMAGE_URI}
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 5000
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "1"
+
+          env:
+            - name: DAGSHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: youtube-predictor-secret
+                  key: DAGSHUB_TOKEN
+
+            - name: YOUTUBE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: youtube-predictor-secret
+                  key: YOUTUBE_API_KEY
+
+            - name: REPO_OWNER
+              valueFrom:
+                configMapKeyRef:
+                  name: youtube-predictor-config
+                  key: REPO_OWNER
+
+            - name: REPO_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: youtube-predictor-config
+                  key: REPO_NAME
+
+            - name: MODEL_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: youtube-predictor-config
+                  key: MODEL_NAME
+
+            - name: S3_BUCKET_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: youtube-predictor-config
+                  key: S3_BUCKET_NAME
+
+            - name: FILE_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: youtube-predictor-config
+                  key: FILE_KEY
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: youtube-view-predict-service
+
+spec:
+  type: LoadBalancer
+
+  selector:
+    app: youtube-view-predict-app
+
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 5000

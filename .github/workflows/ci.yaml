@@ -1,4 +1,116 @@
-name: YouTube CTA CI Pipeline
+# name: YouTube CTA CI Pipeline
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# permissions:
+#   contents: read
+
+# jobs:
+#   project-testing:
+#     runs-on: ubuntu-latest
+#     env:
+#       DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+#       REPO_OWNER: ${{ vars.REPO_OWNER }}
+#       REPO_NAME: ${{ vars.REPO_NAME }}
+#       MODEL_NAME: ${{ vars.MODEL_NAME }}
+#       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+#       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+#       S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
+#       FILE_KEY: ${{ vars.FILE_KEY }}
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Python
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: "3.12"
+#           cache: pip
+#           cache-dependency-path: requirements.txt
+
+#       - name: Install dependencies
+#         run: |
+#           python -m pip install --upgrade pip
+#           python -m pip install -r requirements.txt
+
+#       - name: Verify dependencies
+#         run: python -m pip check
+
+#       - name: Reproduce DVC pipeline
+#         run: dvc repro --force
+
+#       - name: Run tests
+#         run: python -m pytest -v
+
+#       # - name: Build Docker image for testing
+#       #   run: docker build -t youtube-cta-app:ci .
+
+#       # Only promote from a successful push to main, never from a pull request.
+#       - name: Promote candidate if metrics improve
+#         if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+#         run: python scripts/promote_model.py
+
+#       # building docker image and pushing to AWS ECR  
+#       - name: Login to AWS ECR
+#         if: success()
+#         run: |
+#             aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
+#             aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_KEY }}
+#             aws configure set region ${{ secrets.AWS_REGION }}
+#             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
+#       - name: Build Docker image
+#         run: |
+#             docker build -t ${{ secrets.ECR_REPOSITORY }}:latest .
+
+#       - name: Tag Docker image
+#         run: |
+#             docker tag ${{ secrets.ECR_REPOSITORY }}:latest \
+#             ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+
+    
+#       - name: Check Docker Authentication
+#         run: docker info
+
+#       - name: Push Docker image to ECR
+#         run: |
+#           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
+      
+#       # AWS EKS
+#       - name: Set Up kubectl
+#         uses: azure/setup-kubectl@v3
+#         with:
+#           version: 'latest'
+      
+#       - name: Update kubeconfig
+#         run: |
+#           aws eks update-kubeconfig --region us-east-1 --name youtube-view-predict-app-cluster
+
+#       - name: Create Kubernetes Secret
+#         run: |
+#           kubectl create secret generic youtube-predictor-secret \
+#             --from-literal=DAGSHUB_TOKEN="${{ secrets.DAGSHUB_TOKEN }}" \
+#             --from-literal=REPO_OWNER="${{ vars.REPO_OWNER }}" \
+#             --from-literal=REPO_NAME="${{ vars.REPO_NAME }}" \
+#             --from-literal=MODEL_NAME="${{ vars.MODEL_NAME }}" \
+#             --dry-run=client -o yaml | kubectl apply -f -
+
+#       - name: Configure Kubernetes deployment image
+#         env:
+#           ECR_IMAGE_URI: ${{ secrets.ECR_IMAGE_URI }}
+#         run: |
+#           sed "s|\${ECR_IMAGE_URI}|${ECR_IMAGE_URI}|g" deployment.yaml > deployment-rendered.yaml
+#           kubectl apply -f deployment-rendered.yaml      
+
+#       - name: Deploy to EKS
+#         run: |
+#           kubectl apply -f deployment.yaml  
+
+name: YouTube CTA CI/CD Pipeline
 
 on:
   push:
@@ -11,15 +123,23 @@ permissions:
 jobs:
   project-testing:
     runs-on: ubuntu-latest
+
     env:
       DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
       REPO_OWNER: ${{ vars.REPO_OWNER }}
       REPO_NAME: ${{ vars.REPO_NAME }}
       MODEL_NAME: ${{ vars.MODEL_NAME }}
-      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
       FILE_KEY: ${{ vars.FILE_KEY }}
+
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      ECR_IMAGE_URI: ${{ secrets.ECR_IMAGE_URI }}
+
+      EKS_CLUSTER_NAME: youtube-view-predict-app-cluster
 
     steps:
       - name: Checkout code
@@ -46,37 +166,99 @@ jobs:
       - name: Run tests
         run: python -m pytest -v
 
-      # - name: Build Docker image for testing
-      #   run: docker build -t youtube-cta-app:ci .
-
-      # Only promote from a successful push to main, never from a pull request.
       - name: Promote candidate if metrics improve
-        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: success() && github.ref == 'refs/heads/main'
         run: python scripts/promote_model.py
 
-      # building docker image and pushing to AWS ECR  
-      - name: Login to AWS ECR
-        if: success()
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
+
+      - name: Login to Amazon ECR
         run: |
-            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
-            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_KEY }}
-            aws configure set region ${{ secrets.AWS_REGION }}
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+          aws ecr get-login-password --region "$AWS_REGION" |
+            docker login \
+              --username AWS \
+              --password-stdin \
+              "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+      - name: Verify ECR repository
+        run: |
+          aws ecr describe-repositories \
+            --repository-names "$ECR_REPOSITORY" \
+            --region "$AWS_REGION"
 
       - name: Build Docker image
-        run: |
-            docker build -t ${{ secrets.ECR_REPOSITORY }}:latest .
-
-      - name: Tag Docker image
-        run: |
-            docker tag ${{ secrets.ECR_REPOSITORY }}:latest \
-            ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
-
-    
-      - name: Check Docker Authentication
-        run: docker info
+        run: docker build -t "$ECR_IMAGE_URI" .
 
       - name: Push Docker image to ECR
+        run: docker push "$ECR_IMAGE_URI"
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: latest
+
+      - name: Update kubeconfig
         run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
-        
+          aws eks update-kubeconfig \
+            --region "$AWS_REGION" \
+            --name "$EKS_CLUSTER_NAME"
+
+      - name: Verify Kubernetes access
+        run: kubectl get nodes
+
+      - name: Create or update Kubernetes Secret
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: |
+          kubectl create secret generic youtube-predictor-secret \
+            --from-literal="DAGSHUB_TOKEN=$DAGSHUB_TOKEN" \
+            --from-literal="YOUTUBE_API_KEY=$YOUTUBE_API_KEY" \
+            --dry-run=client -o yaml |
+            kubectl apply -f -
+
+      - name: Create or update Kubernetes ConfigMap
+        env:
+          REPO_OWNER: ${{ vars.REPO_OWNER }}
+          REPO_NAME: ${{ vars.REPO_NAME }}
+          MODEL_NAME: ${{ vars.MODEL_NAME }}
+          S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
+          FILE_KEY: ${{ vars.FILE_KEY }}
+        run: |
+          kubectl create configmap youtube-predictor-config \
+            --from-literal="REPO_OWNER=$REPO_OWNER" \
+            --from-literal="REPO_NAME=$REPO_NAME" \
+            --from-literal="MODEL_NAME=$MODEL_NAME" \
+            --from-literal="S3_BUCKET_NAME=$S3_BUCKET_NAME" \
+            --from-literal="FILE_KEY=$FILE_KEY" \
+            --dry-run=client -o yaml |
+            kubectl apply -f -
+
+      - name: Render Kubernetes manifest
+        run: |
+          sed "s|\${ECR_IMAGE_URI}|${ECR_IMAGE_URI}|g" \
+            deployment.yaml > deployment-rendered.yaml
+
+          grep -n "image:" deployment-rendered.yaml
+
+      - name: Deploy to EKS
+        run: |
+          kubectl apply -f deployment-rendered.yaml
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status \
+            deployment/youtube-view-predict-app \
+            --timeout=180s
+
+          kubectl get deployments
+          kubectl get pods
+          kubectl get services

@@ -89,7 +89,9 @@
 	AWS_REGION
 	ECR_REPOSITORY (capstone-proj)
     AWS_ACCOUNT_ID
-   (Also add this permission to the IAM user: AmazonEC2ContainerRegistryFullAccess)
+
+   Also add this permission to the IAM user: 
+   AmazonS3ReadOnlyAccess
 
 38. Execute CICD pipeline till the stage where we build and push image to ECR.
 
@@ -113,24 +115,19 @@ If the path points to your Anaconda environment (e.g., C:\Users\Personal\anacond
 * Move kubectl.exe to a directory in your system PATH, such as C:\Windows\System32: Move-Item -Path .\kubectl.exe -Destination "C:\Windows\System32"
 * Test if kubectl is properly installed: kubectl version --client
 
-
 * Download eksctl: 
 
 For linux:
 https://github.com/eksctl-io/eksctl
 (
 # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+
 ARCH=$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/')
 PLATFORM=$(uname -s)_$ARCH
-
 curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
-
-# (Optional) Verify checksum
-curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
-
 tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
-
 sudo install -m 0755 /tmp/eksctl /usr/local/bin && rm /tmp/eksctl
+
 )
 
 For windows:
@@ -144,49 +141,67 @@ Invoke-WebRequest -Uri "https://github.com/weaveworks/eksctl/releases/download/v
 ----------------------------------------------------------------------------------
 
 39. Create an EKS cluster:
-    eksctl create cluster --name youtube_view_predict_app_cluster --region us-east-1 --nodegroup-name youtube_view_predict_app_nodes --node-type t3.small --nodes 1 --nodes-min 1 --nodes-max 1 --managed
+    configure aws using command: aws configure
+    Enter details:
+    AWS Access Key ID
+    AWS Secret Access Key
+    Default region name
 
-40. Update kubectl Config(Once the cluster is created, eksctl will automatically update your kubectl config file. However, you can verify and set it manually using:)
-aws eks --region us-east-1 update-kubeconfig --name youtube_view_predict_app_cluster  (This ensures your kubectl is pointing to the correct cluster.)
+   Grant Full access for IAM user to avoid errors: 
+
+    AdministratorAccess (Full access) 
+    IAMFullAccess 
+
+    # command to create EKS cluster
+    eksctl create cluster \
+  --name youtube-view-predict-app-cluster \
+  --region us-east-1 \
+  --nodegroup-name youtube-view-predict-app-nodes \
+  --node-type t3.micro \
+  --nodes 1 \
+  --nodes-min 1 \
+  --nodes-max 2 \
+  --managed
+
+40. Update kubectl Config
+(Once the cluster is created, eksctl will automatically update your kubectl config file. However, you can verify and set it manually using:)
+aws eks --region us-east-1 update-kubeconfig --name youtube-view-predict-app-cluster  (This ensures your kubectl is pointing to the correct cluster.)
 
 41. Check EKS Cluster Configuration Ensure you can access your EKS cluster by running
     aws eks list-clusters
 
-42. Delete cluster(optional):
-    eksctl delete cluster --name youtube_view_predict_app_cluster --region us-east-1
+42. Verify the cluster status:
+    aws eks --region us-east-1 describe-cluster --name youtube-view-predict-app-cluster  --query "cluster.status"
 
-    Also, verify cluster deletion:
-    eksctl get cluster --region us-east-1
-
-43. Verify the cluster status:
-    aws eks --region us-east-1 describe-cluster --name youtube_view_predict_app_cluster --query "cluster.status"
-
-
-44. Check cluster connectivity:
+43. Check cluster connectivity:
 kubectl get nodes
 
-45. Check the namespaces:
+44. Check the namespaces:
 kubectl get namespaces
 
-46. Verify the deployment:
+45. Verify the deployment:
 kubectl get pods
 kubectl get svc
 
-47. Deploy the app on EKS via CICD pipeline 
+46. Deploy the app on EKS via CICD pipeline 
   >> edit ci.yaml, deployment.yaml, dockerfile
+
   >> Also edit the security group for nodes and edit inbound rule for 5000 port
+  ec2 instance -> security groups -> edit inbound rules:
+  add : type= custom tcp, port range= 5000 (for flask), source= AnywhereIP4
 
-
-48. Once the LoadBalancer service is up, get the external IP:
+47. Once the LoadBalancer service is up, get the external IP:
 kubectl get svc flask-app-service
 
-49. Try externa-ip:5000 directly on url or on terminal : curl http://external-ip:5000
+48. Try externa-ip:5000 directly on url or on terminal : curl http://external-ip:5000
 curl http://a6bf6255d5f61470c9782b8955c98271-1409247973.us-east-1.elb.amazonaws.com:5000
 
 
+49. Delete cluster(optional):
+    eksctl delete cluster --name youtube-view-predict-app-cluster  --region us-east-1
 
-
-
+    Also, verify cluster deletion:
+    eksctl get cluster --region us-east-1
 
 >>>>>>>>>> Prometheus Server Setup <<<<<<<<<<
 
@@ -218,8 +233,6 @@ scrape_configs:
     static_configs:
       - targets: ["a6bf6255d5f61470c9782b8955c98271-1409247973.us-east-1.elb.amazonaws.com:5000"]  # Replace with your app's External IP
 
-
-
 >> Save the File: ctrl+o -> enter -> ctrl+x
 >> Verify the Changes: cat /etc/prometheus/prometheus.yml
 
@@ -229,9 +242,6 @@ This should return the full path to the prometheus binary, such as /usr/local/bi
 
 57. Run Prometheus with the config file:
 /usr/local/bin/prometheus --config.file=/etc/prometheus/prometheus.yml
-
-
-
 
 >>>>>>>>>> Grafana Server Setup <<<<<<<<<<
 
