@@ -135,30 +135,21 @@ jobs:
             --dry-run=client -o yaml |
             kubectl apply -f -
 
-      - name: Render and validate Kubernetes manifest
+      - name: Render Kubernetes manifest
         run: |
-          test -f deployment.yaml
           sed "s|\${ECR_IMAGE_URI}|${ECR_IMAGE_URI}|g" \
             deployment.yaml > deployment-rendered.yaml
-
-          echo "Rendered container image:"
-          grep -n "image:" deployment-rendered.yaml
-
+      
           if grep -Fq '${ECR_IMAGE_URI}' deployment-rendered.yaml; then
-            echo "ERROR: ECR_IMAGE_URI placeholder was not replaced."
+            echo "ERROR: Image placeholder was not replaced."
             exit 1
           fi
-
+      
       - name: Deploy to EKS
+        run: kubectl apply -f deployment-rendered.yaml
+      
+      - name: Verify deployment
         run: |
-          kubectl apply -f deployment-rendered.yaml
-
-      # - name: Verify deployment
-      #   run: |
-      #     kubectl rollout status \
-      #       deployment/youtube-view-predict-app \
-      #       --timeout=600s
-
-      #     kubectl get deployments
-      #     kubectl get pods
-      #     kubectl get services
+          kubectl rollout status \
+            deployment/youtube-view-predict-app \
+            --timeout=600s

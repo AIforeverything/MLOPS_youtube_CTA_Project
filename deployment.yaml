@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: youtube-view-predict-app
-          image: 895587012195.dkr.ecr.us-east-1.amazonaws.com/youtube-capstone-project-ecr:latest
+          image: ${ECR_IMAGE_URI}
+          # 895587012195.dkr.ecr.us-east-1.amazonaws.com/youtube-capstone-project-ecr:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000

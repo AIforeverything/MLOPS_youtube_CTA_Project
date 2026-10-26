@@ -155,6 +155,7 @@ Invoke-WebRequest -Uri "https://github.com/weaveworks/eksctl/releases/download/v
     IAMFullAccess 
 
     # command to create EKS cluster
+    
     eksctl create cluster \
   --name youtube-view-predict-app-cluster \
   --region us-east-1 \
@@ -164,6 +165,16 @@ Invoke-WebRequest -Uri "https://github.com/weaveworks/eksctl/releases/download/v
   --nodes-min 1 \
   --nodes-max 2 \
   --managed
+
+    eksctl create cluster \
+  --name youtube-view-predict-app-cluster \
+  --region us-east-1 \
+  --nodegroup-name youtube-view-predict-app-nodes \
+  --node-type t3.micro \
+  --nodes 1 \
+  --nodes-min 1 \
+  --nodes-max 1 \
+  --managed  
 
 
 40. Update kubectl Config
@@ -189,15 +200,17 @@ kubectl get svc
 46. Deploy the app on EKS via CICD pipeline 
   >> edit ci.yaml, deployment.yaml, dockerfile
 
+   if we use port:80 and targets:5000 in dockerfile, no need to use :5000 
   >> Also edit the security group for nodes and edit inbound rule for 5000 port
   ec2 instance -> security groups -> edit inbound rules:
   add : type= custom tcp, port range= 5000 (for flask), source= AnywhereIP4
 
 47. Once the LoadBalancer service is up, get the external IP:
-kubectl get svc flask-app-service
+kubectl get svc 
 
-48. Try externa-ip:5000 directly on curl or on terminal : curl http://external-ip:5000
-curl http://afa60f93d3ebc4810b6acb13700a26e2-480983264.us-east-1.elb.amazonaws.com:5000
+48. if we use port:80 and targets:5000, no need to use :5000 in dockerfile
+Try externa-ip directly on curl or on terminal : curl http://external-ip 
+curl http://ab4b8dc9069fe4093ab0c270e3c126a7-85976564.us-east-1.elb.amazonaws.com
 
 
 49. Delete cluster(optional):
