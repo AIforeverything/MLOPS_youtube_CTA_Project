@@ -210,6 +210,8 @@ kubectl get svc
 
 47. Once the LoadBalancer service is up, get the external IP:
 kubectl get svc 
+or 
+from aws console: search ec2 LoadBalancers -> DNS name
 
 48. if we use port:80 and targets:5000, no need to use :5000 in dockerfile
 Try externa-ip directly on curl or on terminal : curl http://external-ip 

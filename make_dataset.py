@@ -38,7 +38,7 @@ CATEGORIES = {
 }
 
 CHANNELS_PER_CATEGORY = 50
-VIDEOS_PER_CHANNEL = 20
+VIDEOS_PER_CHANNEL = 40
 
 
 # =========================================================
@@ -498,7 +498,7 @@ def main():
 
     output_file = os.path.join(
         output_dir,
-        "youtube_10000_videos.csv"
+        "youtube_20000_videos.csv"
     )
 
     df.to_csv(
