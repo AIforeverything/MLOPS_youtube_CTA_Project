@@ -173,7 +173,7 @@ eksctl create cluster \
   --node-type t3.medium \
   --nodes 2 \
   --nodes-min 1 \
-  --nodes-max 3 \
+  --nodes-max 2 \
   --managed 
 
 
