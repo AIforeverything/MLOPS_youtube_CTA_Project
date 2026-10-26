@@ -166,23 +166,26 @@ Invoke-WebRequest -Uri "https://github.com/weaveworks/eksctl/releases/download/v
   --nodes-max 2 \
   --managed
 
-    eksctl create cluster \
+eksctl create cluster \
   --name youtube-view-predict-app-cluster \
   --region us-east-1 \
   --nodegroup-name youtube-view-predict-app-nodes \
-  --node-type t3.micro \
-  --nodes 1 \
+  --node-type t3.medium \
+  --nodes 2 \
   --nodes-min 1 \
-  --nodes-max 1 \
-  --managed  
+  --nodes-max 3 \
+  --managed 
 
 
 40. Update kubectl Config
 (Once the cluster is created, eksctl will automatically update your kubectl config file. However, you can verify and set it manually using:)
 aws eks --region us-east-1 update-kubeconfig --name youtube-view-predict-app-cluster  (This ensures your kubectl is pointing to the correct cluster.)
+if required: kubectl apply -f deployment.yaml
 
 41. Check EKS Cluster Configuration Ensure you can access your EKS cluster by running
     aws eks list-clusters
+
+    kubectl describe pod youtube-view-predict-app-68cc48bdd4-2dckj (check any errors)
 
 42. Verify the cluster status:
     aws eks --region us-east-1 describe-cluster --name youtube-view-predict-app-cluster  --query "cluster.status"
