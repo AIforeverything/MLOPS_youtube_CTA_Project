@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  project-testing:
+  Deployment:
     runs-on: ubuntu-latest
 
     env:
